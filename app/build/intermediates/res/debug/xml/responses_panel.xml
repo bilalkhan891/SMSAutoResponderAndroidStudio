@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent" >
+    	
+	<PreferenceCategory
+	    android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:key="response_options"
+        android:title="Response Options" >
+
+        <EditTextPreference
+		    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="@string/saved_response_driving"
+            android:summary="Response while driving"
+            android:title="Driving Response"
+            android:defaultValue="@string/response_driving"
+            />
+        
+	    <EditTextPreference
+		    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="@string/saved_response_biking"
+            android:summary="Response while cycling"
+            android:title="Biking Response"
+            android:defaultValue="@string/response_cycling"
+        />
+        
+        <EditTextPreference
+		    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="@string/saved_response_hiking"
+            android:summary="Response while hiking"
+            android:title="Hiking Response"
+            android:defaultValue="@string/response_hiking"
+        />
+
+        <EditTextPreference
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="@string/saved_response_running"
+            android:summary="Response while running"
+            android:title="Running Response"
+            android:defaultValue="@string/response_running"
+            />
+
+        <EditTextPreference
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="@string/saved_response_donotdisturb"
+            android:summary="Do Not Disturb Option"
+            android:title="DoNot Disturb Response"
+            android:defaultValue="@string/response_donot_disturb"
+        />
+
+    </PreferenceCategory>
+
+	
+</PreferenceScreen>
+<!-- From: file:/Users/ridgway/AndroidstudioProjects/SMSAutoResponder/app/src/main/res/xml/responses_panel.xml -->
