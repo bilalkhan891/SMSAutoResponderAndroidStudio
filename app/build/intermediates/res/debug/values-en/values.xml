@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- From: file:/Users/ridgway/AndroidstudioProjects/SMSAutoResponder/app/src/main/res/values-en/strings.xml -->
+    <eat-comment />
+
+    <string-array name="activity_array">
+        <item>@string/activity_driving</item>
+        <item>@string/activity_cycling</item>
+        <item>@string/activity_running</item>
+        <item>@string/activity_hiking</item>
+        <item>@string/activity_donotdisturb</item>
+    </string-array>
+    <!-- From: file:/Users/ridgway/AndroidstudioProjects/SMSAutoResponder/app/src/main/res/values-en/dimens.xml -->
+    <eat-comment />
+
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <!-- From: file:/Users/ridgway/AndroidstudioProjects/SMSAutoResponder/app/src/main/res/values-en/strings.xml -->
+    <eat-comment />
+
+    <string name="action_exit">Exit</string>
+    <string name="action_settings">Settings</string>
+    <string name="activity_cycling">Cycling</string>
+    <string name="activity_donotdisturb">Do Not Disturb</string>
+    <string name="activity_driving">Driving</string>
+    <string name="activity_hiking">Walking/Hiking</string>
+    <string name="activity_prompt">Select your Current Activity:</string>
+    <string name="activity_running">Running</string>
+    <string name="app_name">SMSAutoResponder</string>
+    <string name="biking_title">Cycling Response</string>
+    <string name="default_activity">Running</string>
+    <string name="donot_disturb_title">Do Not Disturb Response</string>
+    <string name="driving_title">Driving Response</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="hiking_title">Hiking Response</string>
+    <string name="preference_file_key">com.ridgway.smsautoresponder.PREFERENCE_FILE_KEY</string>
+    <string name="reset_defaults">Reset Defaults</string>
+    <string name="response_cycling">I\'m enjoying my bike ride at the moment, I\'ll get back to you later</string>
+    <string name="response_default">Response</string>
+    <string name="response_donot_disturb">I\'m busy right now. I\'ll get back to you later.</string>
+    <string name="response_driving">I\'m driving right now. I\'ll get back to you when I arrive at my destination</string>
+    <string name="response_hiking">I\'m out for a stroll. I\'ll talk to you later.</string>
+    <string name="response_prompt">Current Response:</string>
+    <string name="response_running">I\'m running and don\'t want to be disturbed. I\'ll catch you later.</string>
+    <string name="responses_sent_prompt">Responses Sent:</string>
+    <string name="running_title">Running Response</string>
+    <string name="saved_activity_option">activityoption</string>
+    <string name="saved_response_biking">bikingresponse</string>
+    <string name="saved_response_donotdisturb">donotdisturbresponse</string>
+    <string name="saved_response_driving">drivingresponse</string>
+    <string name="saved_response_hiking">hikingresponse</string>
+    <string name="saved_response_running">runningresponse</string>
+    <string name="settings_title">Settings</string>
+    <string name="start">Start</string>
+    <string name="start_stop">Start/Stop Responses</string>
+    <string name="stop">Stop</string>
+    <string name="title_activity_settings">Settings</string>
+    <!-- From: file:/Users/ridgway/AndroidstudioProjects/SMSAutoResponder/app/src/main/res/values-en/styles.xml -->
+    <eat-comment />
+
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+</resources>
