@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent" >
+    	
+	<PreferenceCategory
+	    android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:key="sms_options"
+        android:title="SMS Options" >
+
+        <CheckBoxPreference
+		    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="silent_when_driving"
+            android:summary="Silence the phone ringer when in driving mode"
+            android:title="Silence Phone"
+            android:defaultValue="true"
+        />
+        
+	    <CheckBoxPreference
+		    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="ignore_short"
+            android:summary="Don't respond to short numbers, like 25423 (Alice Radio text number)"
+            android:title="Ignore short numbers"
+            android:defaultValue="true"
+        />
+        
+        <CheckBoxPreference
+		    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="enable_known_contacts"
+            android:summary="Only reply to numbers in your contacts list"
+            android:title="Only Respond to known contacts"
+            android:defaultValue="false"
+        />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:key="delay_options"
+        android:title="Delay Options" >
+
+        <CheckBoxPreference
+		    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:defaultValue="false"
+            android:key="enable_delay"
+            android:summary="Delay repeat messages to the same number"
+            android:title="Enable delay" 
+        />
+
+        <com.ridgway.smsautoresponder.NumberPickerPreference
+		    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="repeat_delay"
+            android:title="Repeat Delay"
+            android:summary="Define the delay between repeat messages to the same number"
+            android:dialogTitle="Repeat Message Delay"
+            android:dialogMessage="Number of minutes"   
+            android:defaultValue="5"
+            android:numeric="integer"
+         />
+
+        <com.ridgway.smsautoresponder.NumberPickerPreference
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="auto_disable_response_delay"
+            android:title="Disable Responses Delay"
+            android:summary="Define the default delay before automatically disabling responses"
+            android:dialogTitle="Disable Responses Delay"
+            android:dialogMessage="Number of minutes"
+            android:defaultValue="60"
+            android:numeric="integer"
+        />
+
+    </PreferenceCategory>
+	
+</PreferenceScreen>
+<!-- From: file:/Users/ridgway/AndroidstudioProjects/SMSAutoResponder/app/src/main/res/xml/preferences_panel.xml -->
