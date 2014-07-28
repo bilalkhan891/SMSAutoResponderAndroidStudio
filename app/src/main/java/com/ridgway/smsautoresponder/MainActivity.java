@@ -19,8 +19,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBarActivity;
@@ -44,10 +44,8 @@ import com.google.android.gms.ads.AdRequest.Builder;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import android.provider.ContactsContract;
 
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 
@@ -55,42 +53,44 @@ public class MainActivity extends ActionBarActivity
                         implements DurationPickerDialog.DurationPickerDialogListener {
 
 	private static final int mNotificationId = 42; // Responses Sent Notification Id
-    Toast toastResponse = null;
+    Toast toastResponse = null; // holder for the debug toast settings.
 
 	// Setup option for debugging or not
 	// This can be used to conditionalize some functionality
-	private boolean mDebug = false;
-	private boolean mFreeVersion = true;
+	private boolean mDebug = false; // debug mode? Enables more toast message popups. Change the false for shipping.
+	private boolean mFreeVersion = true; // Currently only have a free version, but just in case.
+    private static final int SHORT_NUMBER_MAX_LENGTH = 7; // Max length of incoming message number that is considered short.
+    private static final int DEFAULT_RESPONSE_REPEAT_DELAY = 5; // default delay between responses to the same number (in minutes)
 	
 	// Setup member strings for main layout response
 	// display
-	String strDrive = "";
-	String strBike = "";
-	String strRun = "";
-	String strHike = "";
-	String strDisturb = "";
-	String strDefaultActivity = "";
-	String returnMessage = "";
+    private String strDrive = "";
+    private String strBike = "";
+    private String strRun = "";
+    private String strHike = "";
+    private String strDisturb = "";
+    private String strDefaultActivity = "";
+    private String returnMessage = "";
 
-    int responsesSent = 0;
-    int mrepeat_delay = 5;
+    private int responsesSent = 0; // keep a count of the responses sent this time
+    private int mrepeat_delay = 5; // default # minutes between successive responses to the same number
 
-    boolean mStart = false;
-    boolean mbenable_delay = true;
-    boolean mbenable_known_contacts = false;
-    boolean mbignore_short = true;
-    boolean mbsilent_when_driving = true;
+    private boolean mStart = false; // are we started
+    private boolean mbenable_delay = true; // Is the repeat response delay enabled
+    private boolean mbenable_known_contacts = false; // do we only reply to known contacts
+    private boolean mbignore_short = true; // do we ignore texts from short numbers
+    private boolean mbsilent_when_driving = true; // do we silence the phone ringer in driving mode
 
-    boolean receiverRegistered = false;
-	boolean googlePlayAvailable = false;
-	boolean googleDialogShown = false;
+    private boolean receiverRegistered = false; // Is our broadcast receiver registered
+    private boolean googlePlayAvailable = false; // Are Google Play services available on the device
+    private boolean googleDialogShown = false; // Have we already shown the Missing Google Play dialog
 
-    private PendingIntent pendingAlarmIntent;
-    private AlarmManager alarmMgr;
+    private PendingIntent pendingAlarmIntent; // Intent for use with AlarmManager
+    private AlarmManager alarmMgr; // AlarmManager used for automatic disable of responses after certain length of time
 
-    private SMSSQLiteHelper db;
-    private ListView listView;
-    private SMSCursorAdapter smsAdapter;
+    private SMSSQLiteHelper db; // Database link for storing response information
+    private ListView listView; // Main activity ListView to display recent responses
+    private SMSCursorAdapter smsAdapter; // Adapter between the database and ListView
 
     /**
 	 * Setup Broadcast Receiver for incoming SMS Messages
@@ -106,10 +106,16 @@ public class MainActivity extends ActionBarActivity
             boolean bSendResponse = true;
             String msg = returnMessage;
             if(mFreeVersion){
+                // Add extra text to outgoing messages
+                // to advertise the App in the Free Version
                 msg = returnMessage + getString(R.string.response_sentby);
             }
 
-            if(bSendResponse && smsNumber.length() < 7 && mbignore_short) {
+            // Check to see if we're ignoring short numbers and
+            // compare the length of the incoming message number
+            // Easiest thing to check, then we don't have to check anything
+            // else if this kills the response.
+            if(bSendResponse && mbignore_short && smsNumber.length() < SHORT_NUMBER_MAX_LENGTH) {
                 // Create toast message
                 context = getApplicationContext();
                 CharSequence text = getResources().getString(R.string.short_ignore_toast);
@@ -117,11 +123,15 @@ public class MainActivity extends ActionBarActivity
                 Toast toastIgnoreShort = Toast.makeText(context, text, duration);
                 toastIgnoreShort.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                 toastIgnoreShort.show();
+
+                // Flag that we're not sending a response
                 bSendResponse = false;
 
             }
 
 
+            // If we're still OK to send the response, check if the number is
+            // from a contact in our address book.
             if(bSendResponse && mbenable_known_contacts){
                 // validate incoming message number is in
                 // the contacts list.
@@ -157,14 +167,17 @@ public class MainActivity extends ActionBarActivity
                     Toast toastIgnoreUnknown = Toast.makeText(context, text, duration);
                     toastIgnoreUnknown.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     toastIgnoreUnknown.show();
+
+                    // Flag that we're not sending a response
                     bSendResponse = false;
                 }
             }
 
 
+            // If we're still OK to send the response, check
             // if we have an option selected to limit the response frequency,
             // let's get the most recent response for the current number and if it's
-            // older than the cutoff, we can send the respsonse, otherwise we'll ignore
+            // older than the cutoff, we can send the response, otherwise we'll ignore
             // the incoming response
             if(bSendResponse && mbenable_delay){
                 long recentMillis = db.getLatestResponseTime(smsNumber);
@@ -184,6 +197,7 @@ public class MainActivity extends ActionBarActivity
                     Log.d("SMSAutoResponser", "Difference between now and recent response: " + minutes + "minutes");
 
                     if( minutes < mrepeat_delay){
+                        // Flag that we're not sending a response
                         bSendResponse = false;
                         Log.d("SMSAutoResponser", "Recent Response too recent. Not responding again so soon.");
                     }
@@ -274,12 +288,12 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
         // User touched the dialog's negative button
-        // invert the start option.
         if(mDebug){
             // Create toast message
             CharSequence txt = "Main: Delay Dialog Negative Click. mstart: " + mStart;
             showDebugToast(txt);
         }
+        Log.d("SMSAutoResponder", "onDialogNegativeClick: Start Responses Canceled." );
 
     }
 
@@ -296,12 +310,15 @@ public class MainActivity extends ActionBarActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-        // Get a handle to our database
+        // Get a handle to our database, so we can store/retrieve
+        // recent responses.
         db = new SMSSQLiteHelper(this);
 
         // Database query can be a time consuming task ..
         // so its safe to call database query in another thread
-        // Handler, will handle this stuff
+        // Handler, will handle this stuff.
+        // Start this early, so we can get everything else
+        // up and running while this goes on. Limits the perceived delay.
         listView = (ListView) findViewById(R.id.listView);
         new Handler().post(new Runnable() {
             @Override
@@ -340,13 +357,16 @@ public class MainActivity extends ActionBarActivity
 	    Builder adBuilder = new AdRequest.Builder();
 	    
 	    if(mDebug){
+            // These are some debug settings, so we're not
+            // using our live settings for debugging and possibly
+            // giving out bad data for the Ad service.
 	    	adBuilder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);       // Emulator
 		    adBuilder.addTestDevice("B3EEABB8EE11C2BE770B684D95219ECB"); // My Galaxy Nexus Virtual Device
 	    }
 	    AdRequest adRequest = adBuilder.build();
 	    adView.loadAd(adRequest);
 	    
-	    // Create toast message
+	    // Create our debug toast message
 	    Context context = getApplicationContext();
 	    CharSequence text = getResources().getString(R.string.response_toast);
 	    int duration = Toast.LENGTH_SHORT;
@@ -363,12 +383,21 @@ public class MainActivity extends ActionBarActivity
 	}
 
 
+    /**
+     * Save the current selection in the spinner when
+     * moving to the Paused State
+     */
 	@Override
 	protected void onPause(){
         super.onPause();
         saveSpinner();
 	}
 
+    /**
+     * Check the state of the Google Play Services on the device
+     * just before the App is enabled and displayed.
+     * Make sure the responses are started, if we were started previously.
+     */
 	@Override
 	protected void onResume(){
         super.onResume();
@@ -408,12 +437,19 @@ public class MainActivity extends ActionBarActivity
 	}
 
 
+    /**
+     * Another instance where we make sure the Spinner state
+     * is saved to our preferences file.
+     */
 	@Override
 	protected void onStop(){
         super.onStop();
         saveSpinner();
 	}
-        
+
+    /**
+     * Clean up our Alarm objects.
+     */
 	@Override
 	protected void onDestroy(){
 
@@ -426,6 +462,11 @@ public class MainActivity extends ActionBarActivity
         super.onDestroy();
 	}
 
+    /**
+     * Menu display callback.
+     * @param menu
+     * @return
+     */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -434,6 +475,11 @@ public class MainActivity extends ActionBarActivity
 		return true;
 	}
 
+    /**
+     * Menu item selection callback.
+     * @param item
+     * @return
+     */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle action bar item clicks here. The action bar will
@@ -451,7 +497,7 @@ public class MainActivity extends ActionBarActivity
 	    	.setPositiveButton(R.string.dlg_yes, new OnClickListener() {
 		    	public void onClick(DialogInterface arg0, int arg1) {
 		    		//do stuff onclick of YES
-					stopReciever();
+                    stopReceiver();
 					// now exit the application and unload from memory
 					finish();
 		    	}
@@ -467,11 +513,15 @@ public class MainActivity extends ActionBarActivity
 		return super.onOptionsItemSelected(item);
 	}
 
+
+
+
 	/**
-	 * 
-	 * All the private class methods & callback methods
-	 * 
-	 * 
+	 * **************************************************
+     *
+	 * All the public class methods & callback methods
+	 *
+     * **************************************************
 	 */
 
     // Dialog for confirming Exit App
@@ -495,10 +545,110 @@ public class MainActivity extends ActionBarActivity
         toastDebug.show();
     }
 
+    /**
+     * Select the Spinner entry by value, rather than position
+     */
+    public static void SelectSpinnerItemByValue(Spinner spnr, String value)
+    {
+        @SuppressWarnings("unchecked")
+        ArrayAdapter<String> adapter = (ArrayAdapter<String>) spnr.getAdapter();
+        spnr.setSelection(adapter.getPosition(value));
+    }
+
+
+    /**
+     * Respond to the preferences menu item
+     */
+    public void openPreferences(){
+        // Open the settings panel
+        Intent intent = new Intent(this, PrefsActivity.class);
+        startActivity(intent);
+    }
+
+
+    /**
+     * return the current value of the response message
+     * @return
+     */
+    public String getResponseMessage(){
+        TextView responseText = (TextView) findViewById(R.id.TextViewResponseDefault);
+        String strResponse = responseText.getText().toString();
+        return strResponse;
+    }
+
+    /**
+     * In response to the Enable/Disable button short click.
+     * Only enable on short click, if the responses are disabled.
+     * Otherwise, if currently enabled, popup a toast informing
+     * the user that they need to long click to disable.
+     *
+     * The long click is used to eliminate inadvertent disabling.
+     *
+     * @param v
+     */
+    public void shortClickEnableBtn(View v){
+        if(!mStart){
+            toggleResponses(v);
+        }
+        else{
+            // Create toast message
+            Context context = getApplicationContext();
+            CharSequence text = getResources().getString(R.string.longclick_toast);
+            int duration = Toast.LENGTH_SHORT;
+            Toast toastClick = Toast.makeText(context, text, duration);
+            toastClick.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+            toastClick.show();
+        }
+    }
+
+    /**
+     * Use a long click to disable responses, if they're enabled.
+     * @param v
+     */
+    public void longClickEnableBtn(View v){
+        if(mStart){
+            toggleResponses(v);
+        }
+    }
+
+
+    /** Called when the user clicks the Start button */
+    public void toggleResponses(View view) {
+
+        if(mStart){
+            mStart = false;
+            stopResponses(view);
+        }
+        else{
+            startResponses(view);
+        }
+    }
+
+    /** Called when the user clicks the Start button */
+    public void startResponses(View view) {
+        // Show the duration picker dialog that allows
+        // choosing an auto disable timespan.
+        // responses are started from the dialog listener
+        showNoticeDialog();
+
+    }
+
+    /** Called when the user clicks the Stop button */
+    public void stopResponses(View view) {
+        stopResponses();
+    }
+
+    /**
+     * **************************************************
+     *
+     * All the private class methods & callback methods
+     *
+     * **************************************************
+     */
 
     // unresgister the broadcast receiver for SMS messages
-    // and disable notifications.
-    private void stopReciever(){
+    // and disable notifications, when we're stopping responses.
+    private void stopReceiver(){
 		// cancel the start
 		mStart = false;
 		
@@ -580,94 +730,6 @@ public class MainActivity extends ActionBarActivity
 	}
 	
 
-	/**
-	 * Select the Spinner entry by value, rather than position
-	 */
-	public static void SelectSpinnerItemByValue(Spinner spnr, String value)
-	{
-		@SuppressWarnings("unchecked")
-		ArrayAdapter<String> adapter = (ArrayAdapter<String>) spnr.getAdapter();
-	    spnr.setSelection(adapter.getPosition(value));
-	}
-
-
-    /**
-     * Respond to the preferences menu item
-     */
-    public void openPreferences(){
-        // Open the settings panel
-        Intent intent = new Intent(this, PrefsActivity.class);
-        startActivity(intent);
-    }
-
-
-	/**
-	 * return the current value of the response message
-	 * @return
-	 */
-	public String getResponseMessage(){
-		TextView responseText = (TextView) findViewById(R.id.TextViewResponseDefault);
-		String strResponse = responseText.getText().toString();
-		return strResponse;
-	}
-
-    /**
-     * In response to the Enable/Disable button short click.
-     * Only enable on short click, if the responses are disabled.
-     * Otherwise, if currently enabled, popup a toast informing
-     * the user that they need to long click to disable.
-     *
-     * The long click is used to eliminate inadvertent disabling.
-     *
-     * @param v
-     */
-	public void shortClickEnableBtn(View v){
-		if(!mStart){
-			toggleResponses(v);
-		}
-		else{
-		    // Create toast message
-		    Context context = getApplicationContext();
-		    CharSequence text = getResources().getString(R.string.longclick_toast);
-		    int duration = Toast.LENGTH_SHORT;
-		    Toast toastClick = Toast.makeText(context, text, duration);
-		    toastClick.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-		    toastClick.show();
-		}
-	}
-
-    /**
-     * Use a long click to disable responses, if they're enabled.
-     * @param v
-     */
-	public void longClickEnableBtn(View v){
-		if(mStart){
-			toggleResponses(v);
-		}
-	}
-	
-	
-    /** Called when the user clicks the Start button */
-    public void toggleResponses(View view) {
-
-    	if(mStart){
-            mStart = false;
-            stopResponses(view);
-    	}
-    	else{
-            startResponses(view);
-    	}
-    }
-	
-    /** Called when the user clicks the Start button */
-    public void startResponses(View view) {
-        // Show the duration picker dialog that allows
-        // choosing an auto disable timespan.
-        // responses are started from the dialog listener
-        showNoticeDialog();
-
-    }
-
 
     /**
      * Enable the broadcast receiver for SMS Messages,
@@ -701,14 +763,10 @@ public class MainActivity extends ActionBarActivity
         }
     }
     
-    /** Called when the user clicks the Stop button */
-    public void stopResponses(View view) {
-        stopResponses();
-    }
 
     private void stopResponses(){
         Log.d("SMSAutoResponder", "stopResponses" );
-    	stopReciever();
+        stopReceiver();
     	ActivateButtons(receiverRegistered);
 
         if(mbsilent_when_driving) {
@@ -812,7 +870,8 @@ public class MainActivity extends ActionBarActivity
     }
 
     /**
-     * Get the Preferences from the default shared preferences file.
+     * Get the Preferences from the default shared preferences file
+     * and populate the private class member variables.
      */
     public void getSavedPrefs(){
 		// If we have previously saved preferences, then take those strings and use them
@@ -857,7 +916,7 @@ public class MainActivity extends ActionBarActivity
 		mStart = sharedPref.getBoolean(getString(R.string.saved_response_start), false);
 
         SharedPreferences settingsPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        mrepeat_delay = settingsPrefs.getInt(getString(R.string.saved_repeat_delay), 5);
+        mrepeat_delay = settingsPrefs.getInt(getString(R.string.saved_repeat_delay), DEFAULT_RESPONSE_REPEAT_DELAY);
         mbenable_delay = settingsPrefs.getBoolean(getString(R.string.saved_enable_delay), false);
         mbenable_known_contacts = settingsPrefs.getBoolean(getString(R.string.saved_enable_known_contacts), false);
         mbignore_short = settingsPrefs.getBoolean(getString(R.string.saved_ignore_short), true);

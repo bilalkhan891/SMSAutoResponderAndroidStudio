@@ -19,19 +19,9 @@
 
 .idea/workspace.xml
 
-app/build/intermediates/classes/debug/com/ridgway/smsautoresponder/MainActivity$1.class
+build/
 
-app/build/intermediates/classes/debug/com/ridgway/smsautoresponder/MainActivity$2.class
-
-app/build/intermediates/classes/debug/com/ridgway/smsautoresponder/MainActivity$3.class
-
-.gradle/1.12/taskArtifacts/fileSnapshots.bin
-
-app/build/intermediates/classes/debug/com/ridgway/smsautoresponder/MainActivity$3.class
-
-app/build/intermediates/classes/debug/com/ridgway/smsautoresponder/MainActivity$2.class
-
-app/build/intermediates/classes/debug/com/ridgway/smsautoresponder/MainActivity$1.class
+app/build/
 
 .idea/workspace.xml
 
@@ -41,18 +31,3 @@ app/build/intermediates/classes/debug/com/ridgway/smsautoresponder/MainActivity$
 
 .gradle/1.12/taskArtifacts/fileSnapshots.bin
 
-app/build/intermediates/classes/debug/com/ridgway/smsautoresponder/MainActivity$4.class
-
-app/build/intermediates/classes/debug/com/ridgway/smsautoresponder/MainActivity$5.class
-
-app/build/intermediates/classes/debug/com/ridgway/smsautoresponder/MainActivity$6.class
-
-app/build/intermediates/classes/debug/com/ridgway/smsautoresponder/MainActivity$7.class
-
-app/build/intermediates/classes/debug/com/ridgway/smsautoresponder/MainActivity.class
-
-app/build/intermediates/dex/debug/classes.dex
-
-app/build/outputs/apk/app-debug-unaligned.apk
-
-app/build/outputs/apk/app-debug.apk
