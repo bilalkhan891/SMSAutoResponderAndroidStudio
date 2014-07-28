@@ -3,10 +3,6 @@ SMS AutoResponder TODO
 
 Clean up persistent data to the right onResume/onPause/onSaveInstanceState methods. Use Bundle for the Start/Stop selection
 
-Add Preferences menu item
-	Add Config screen
-		checbox for reply to knowm contacts ONLY
-		add delay option for responding to the same number again. If another message from same number comes in within the delay time, ignore it. Still send to others.
 		enable location services
 		enable notification after silent mode driving
 		Add notification sound selection
@@ -15,8 +11,6 @@ Add stop button to notification -- research custom notification layouts.
 
 
 (✔WIDGET) One touch Auto-response ON/OFF widget. 
-(✔AUTO ON/OFF) Able to set Auto-response Turn-ON duration, no worry even if forget to turn off. Timer option when enabling -- long press on checkbox? maybe timer icon with longpress, similar to llama.
-
 
 Location services (Activity Recognition)
 Setting to enable/disable location services use. Disable/Hide selections on main screen for activity and current response
@@ -25,7 +19,6 @@ Setting to enable/disable location services use. Disable/Hide selections on main
 
 Custom checkboxes -- one type for enable/disable, and another for settings page, if needed.
 
-Save the list of numbers responses have been sent to, along with the time of the response. SQLite databse. Show as listView on main screen
 	add settings for 
 				clear data on app exit
 				save only most recent x responses
@@ -53,4 +46,15 @@ Require long click to disable responses. Popup toast message to inform user of r
 
 option for silence phone ringer/vibrate when driving activity selected from drop down, or driving detected from location services.
 option for ignore short numbers
+
+Add Preferences menu item
+	Add Config screen
+		checbox for reply to knowm contacts ONLY
+		add delay option for responding to the same number again. If another message from same number comes in within the delay time, ignore it. Still send to others.
+
+Save the list of numbers responses have been sent to, along with the time of the response. SQLite databse. Show as listView on main screen
+
+(✔AUTO ON/OFF) Able to set Auto-response Turn-ON duration, no worry even if forget to turn off. Timer option when enabling -- long press on checkbox? maybe timer icon with longpress, similar to llama.
+
+
 

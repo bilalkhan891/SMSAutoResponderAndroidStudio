@@ -9,15 +9,23 @@ Fix text size and button layout.
 Consolidate to a single Enable/Disable button.
 Added database storage of a list of recent responses sent out -- time & number.
 Enable option to ignore incoming messages from short numbers.
-Enable delay between successive responses to the same number. Default values is configurable in preferences.
+Enable optional delay between successive responses to the same number. Default values is configurable in preferences.
 Enable option to only reply to known contacts.
 Added option to silence the phone ringer when in driving mode.
 
-Added a confirmation dialog to the Exit application menu.
+Added a confirmation dialog to the Exit application menu item behavior.
 Disable the activity selection spinner when responses are active.
 Require long press to disable responses, to avoid accidentally disabling.
 
-Added alarm support to automatically disable responses after a time interval specified at the time responses are enabled. Default interval is configurable in the preferences.
+Added alarm support to automatically disable responses after a time interval specified when the responses are enabled. Default interval is configurable in the preferences.
+
+
+PERMISSIONS
+===========
+
+android.permission.READ_CONTACTS -- so we can determine if the incoming message is from a known contact.
+com.google.android.gms.permission.ACTIVITY_RECOGNITION -- so we can determine the current activity instead of having to manually set it.
+
 
 
 
@@ -28,3 +36,41 @@ Automatically Reply to incoming text messages with one of several preconfigured 
 Preconfigured options are saved in application preferences
 Preconfigured responses can be selected by activity before enabling
 Response count displayed in a system notification and popup message
+
+
+PERMISSIONS
+===========
+
+android.permission.SEND_SMS -- so we can send automated replies to incoming message, when enabled in the application.
+android.permission.RECEIVE_SMS -- so we know when and to whom we need to respond.
+
+
+com.google.android.providers.gsf.permission.READ_GSERVICES -- Needed for Ad Support
+android.permission.INTERNET -- Needed for Ad Support
+android.permission.ACCESS_NETWORK_STATE -- Needed for Ad Support
+
+
+
+Android API Features in use
+===========================
+
+v1.0
+----
+
+Broadcast Receiver
+Menus
+ActionBarActivity
+Preferences
+Send/Receive SMS Messages
+
+v1.5
+----
+
+AlarmManager
+Preference Fragments
+Custom Number Picker dialog
+Custom Duration Picker dialog
+SQLite, ListView, and Adapters
+Enabled LogCat logging
+
+
