@@ -1,0 +1,30 @@
+SMS AutoResponder
+======================
+
+Features 1.5
+============
+
+Improved preferences behavior.
+Fix text size and button layout.
+Consolidate to a single Enable/Disable button.
+Added database storage of a list of recent responses sent out -- time & number.
+Enable option to ignore incoming messages from short numbers.
+Enable delay between successive responses to the same number. Default values is configurable in preferences.
+Enable option to only reply to known contacts.
+Added option to silence the phone ringer when in driving mode.
+
+Added a confirmation dialog to the Exit application menu.
+Disable the activity selection spinner when responses are active.
+Require long press to disable responses, to avoid accidentally disabling.
+
+Added alarm support to automatically disable responses after a time interval specified at the time responses are enabled. Default interval is configurable in the preferences.
+
+
+
+Features 1.0
+============
+
+Automatically Reply to incoming text messages with one of several preconfigured responses.
+Preconfigured options are saved in application preferences
+Preconfigured responses can be selected by activity before enabling
+Response count displayed in a system notification and popup message
