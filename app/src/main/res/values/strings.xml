@@ -65,6 +65,7 @@
         <item>@string/activity_donotdisturb</item>
     </string-array>
 
+    <string name="listview_title">Recent Responses:</string>
     <string name="title_activity_settings">Customize</string>
     <string name="title_activity_panel_settings">Settings</string>
     <string name="response_hint">Enter a Response</string>

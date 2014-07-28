@@ -17,6 +17,7 @@ import android.database.Cursor;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -32,6 +33,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -44,12 +46,14 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import android.provider.ContactsContract;
 
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends ActionBarActivity
                         implements DurationPickerDialog.DurationPickerDialogListener {
-	
+
 	private static final int mNotificationId = 42; // Responses Sent Notification Id
     Toast toastResponse = null;
 
@@ -83,6 +87,10 @@ public class MainActivity extends ActionBarActivity
 
     private PendingIntent pendingAlarmIntent;
     private AlarmManager alarmMgr;
+
+    private SMSSQLiteHelper db;
+    private ListView listView;
+    private SMSCursorAdapter smsAdapter;
 
     /**
 	 * Setup Broadcast Receiver for incoming SMS Messages
@@ -154,6 +162,34 @@ public class MainActivity extends ActionBarActivity
             }
 
 
+            // if we have an option selected to limit the response frequency,
+            // let's get the most recent response for the current number and if it's
+            // older than the cutoff, we can send the respsonse, otherwise we'll ignore
+            // the incoming response
+            if(bSendResponse && mbenable_delay){
+                long recentMillis = db.getLatestResponseTime(smsNumber);
+                if(recentMillis == 0){
+                    Log.d("SMSAutoResponder", "No Recent response for number: " + smsNumber);
+                }
+                else{
+                    long nowMillis = System.currentTimeMillis();
+
+                    Date now = new Date(nowMillis);
+                    Date smsDate = new Date(recentMillis);
+                    Log.d("SMSAutoResponder", "Most Recent response for number: " + smsNumber + " is " + smsDate);
+                    Log.d("SMSAutoResponser", "Repeat Delay set to " + mrepeat_delay + "minutes");
+
+                    long diff = now.getTime() - smsDate.getTime();
+                    long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
+                    Log.d("SMSAutoResponser", "Difference between now and recent response: " + minutes + "minutes");
+
+                    if( minutes < mrepeat_delay){
+                        bSendResponse = false;
+                        Log.d("SMSAutoResponser", "Recent Response too recent. Not responding again so soon.");
+                    }
+
+                }
+            }
 
             // If we have the right configuration,
             // Send a response to the incoming message.
@@ -162,8 +198,12 @@ public class MainActivity extends ActionBarActivity
 	            SmsManager smsManager = SmsManager.getDefault();
 	            smsManager.sendTextMessage(smsNumber, null, msg, null, null);        
 	            responsesSent++;
-	            
-	            createNotification();
+
+                // add to the database
+                db.addResponse(smsNumber);
+                smsAdapter.changeCursor(db.getAllData());
+
+                createNotification();
 	            toastResponse.show();
         	}
         }
@@ -255,8 +295,23 @@ public class MainActivity extends ActionBarActivity
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-		// Get Preferences
+
+        // Get a handle to our database
+        db = new SMSSQLiteHelper(this);
+
+        // Database query can be a time consuming task ..
+        // so its safe to call database query in another thread
+        // Handler, will handle this stuff
+        listView = (ListView) findViewById(R.id.listView);
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                smsAdapter = new SMSCursorAdapter(MainActivity.this, db.getAllData());
+                listView.setAdapter(smsAdapter);
+            }
+        });
+
+        // Get Preferences
 		getSavedPrefs();
 		
 		//---intent to filter for SMS messages received---
@@ -306,6 +361,7 @@ public class MainActivity extends ActionBarActivity
 		}
 
 	}
+
 
 	@Override
 	protected void onPause(){

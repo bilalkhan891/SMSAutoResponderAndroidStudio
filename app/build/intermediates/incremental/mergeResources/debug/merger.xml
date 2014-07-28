@@ -1819,10 +1819,6 @@ normal
                     name="TextAppearance.AppCompat.Widget.PopupMenu.Large"
                     parent="TextAppearance.AppCompat.Base.Widget.PopupMenu.Large" />
 
-                <attr
-                    name="listPreferredItemHeightSmall"
-                    format="dimension" />
-
                 <declare-styleable name="MenuItem" >
 
                     <!-- The ID of the item. -->
@@ -1960,6 +1956,10 @@ normal
                         name="actionProviderClass"
                         format="string" />
                 </declare-styleable>
+
+                <attr
+                    name="listPreferredItemHeightSmall"
+                    format="dimension" />
 
                 <style
                     name="TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
@@ -17071,6 +17071,8 @@ normal
                 </string>
                 <string name="saved_repeat_delay" >repeat_delay
                 </string>
+                <string name="listview_title" >Recent Responses:
+                </string>
                 <string name="short_ignore_toast" >Ignoring short number
                 </string>
                 <string name="response_cycling" >I\'m enjoying my bike ride at the moment. I\'ll get back to you later.
@@ -17918,6 +17920,11 @@ Never
                 path="/Users/ridgway/AndroidstudioProjects/SMSAutoResponder/app/src/main/res/xml/responses_panel.xml"
                 qualifiers=""
                 type="xml" />
+            <file
+                name="listview_oneline_layout"
+                path="/Users/ridgway/AndroidstudioProjects/SMSAutoResponder/app/src/main/res/layout/listview_oneline_layout.xml"
+                qualifiers=""
+                type="layout" />
         </source>
         <source path="/Users/ridgway/AndroidstudioProjects/SMSAutoResponder/app/build/generated/res/rs/debug" />
         <source path="/Users/ridgway/AndroidstudioProjects/SMSAutoResponder/app/build/generated/res/generated/debug" />
