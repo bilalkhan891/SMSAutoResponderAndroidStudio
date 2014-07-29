@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent" >
+
+
+    <PreferenceCategory
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:key="delay_options"
+        android:title="Delay Options" >
+
+        <CheckBoxPreference
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:defaultValue="false"
+            android:key="enable_delay"
+            android:summary="Delay repeat messages to the same number"
+            android:title="Enable delay"
+            />
+
+        <com.ridgway.smsautoresponder.NumberPickerPreference
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="repeat_delay"
+            android:title="Repeat Delay"
+            android:summary="Define the delay between repeat messages to the same number"
+            android:dialogTitle="Repeat Message Delay"
+            android:dialogMessage="Number of minutes"
+            android:defaultValue="5"
+            android:numeric="integer"
+            />
+
+        <com.ridgway.smsautoresponder.NumberPickerPreference
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="auto_disable_response_delay"
+            android:title="Disable Responses Delay"
+            android:summary="Define the default delay before automatically disabling responses"
+            android:dialogTitle="Disable Responses Delay"
+            android:dialogMessage="Number of minutes"
+            android:defaultValue="60"
+            android:numeric="integer"
+            />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

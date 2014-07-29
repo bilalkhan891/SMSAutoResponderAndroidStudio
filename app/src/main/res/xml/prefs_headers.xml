@@ -6,4 +6,7 @@
     <header android:fragment="com.ridgway.smsautoresponder.SettingsPanelFragment"
         android:title="Settings"
         android:summary="SMS Settings" />
+    <header android:fragment="com.ridgway.smsautoresponder.DelayPanelFragment"
+        android:title="Delays"
+        android:summary="Delay Settings" />
 </preference-headers>

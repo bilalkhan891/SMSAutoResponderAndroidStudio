@@ -9,6 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:gravity="center_horizontal"
         android:text="Sample Data"
         android:textSize="15sp"
         android:paddingBottom="5dp" />
@@ -17,6 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:gravity="center_horizontal"
         android:text="Sample Data 2"
         android:textStyle="bold"
         android:textSize="15sp"

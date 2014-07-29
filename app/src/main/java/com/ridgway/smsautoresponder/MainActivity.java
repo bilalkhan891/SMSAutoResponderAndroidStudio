@@ -27,9 +27,11 @@ import android.support.v7.app.ActionBarActivity;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -80,6 +82,7 @@ public class MainActivity extends ActionBarActivity
     private boolean mbenable_known_contacts = false; // do we only reply to known contacts
     private boolean mbignore_short = true; // do we ignore texts from short numbers
     private boolean mbsilent_when_driving = true; // do we silence the phone ringer in driving mode
+    private boolean mclear_data_on_exit = false; // clear the response data history on app exit
 
     private boolean receiverRegistered = false; // Is our broadcast receiver registered
     private boolean googlePlayAvailable = false; // Are Google Play services available on the device
@@ -330,6 +333,11 @@ public class MainActivity extends ActionBarActivity
             }
         });
 
+        // Add a header row to the listview
+        LayoutInflater inflater = getLayoutInflater();
+        ViewGroup header = (ViewGroup) inflater.inflate(R.layout.listview_header, listView, false);
+        listView.addHeaderView(header, null, false);
+
         // Get Preferences
 		getSavedPrefs();
 		
@@ -486,23 +494,36 @@ public class MainActivity extends ActionBarActivity
             openPreferences();
             return true;
         }
+
+        if (id == R.id.action_clear_data) {
+            clearResponseData();
+            return true;
+        }
+
 		if (id == R.id.action_exit) {
 			new AlertDialog.Builder(this)
 	    	.setTitle(R.string.acknowledgeexit_title )
 	    	.setMessage(R.string.acknowledgeexit_msg)
 	    	.setPositiveButton(R.string.dlg_yes, new OnClickListener() {
-		    	public void onClick(DialogInterface arg0, int arg1) {
-		    		//do stuff onclick of YES
+                public void onClick(DialogInterface arg0, int arg1) {
+                    //do stuff onclick of YES
                     stopReceiver();
-					// now exit the application and unload from memory
-					finish();
-		    	}
-		    })
+
+                    // if the preferences are set for clearing data on exit,
+                    // then execute that option.
+                    if (mclear_data_on_exit) {
+                        clearResponseData();
+                    }
+
+                    // now exit the application and unload from memory
+                    finish();
+                }
+            })
 	    	.setNegativeButton(R.string.dlg_cancel, new OnClickListener() {
-		    	public void onClick(DialogInterface arg0, int arg1) {
-			    	//do nothing onclick of CANCEL
-		    	}
-	    	}).show();
+                public void onClick(DialogInterface arg0, int arg1) {
+                    //do nothing onclick of CANCEL
+                }
+            }).show();
 			
 			return true;
 		}
@@ -912,7 +933,7 @@ public class MainActivity extends ActionBarActivity
         mbenable_known_contacts = settingsPrefs.getBoolean(getString(R.string.saved_enable_known_contacts), false);
         mbignore_short = settingsPrefs.getBoolean(getString(R.string.saved_ignore_short), true);
         mbsilent_when_driving = settingsPrefs.getBoolean(getString(R.string.saved_silent_when_driving), false);
-
+        mclear_data_on_exit = settingsPrefs.getBoolean(getString(R.string.saved_clear_data_on_exit), false);
 
     }
 
@@ -946,5 +967,15 @@ public class MainActivity extends ActionBarActivity
 
     }
 
+    /**
+     * Update the database to remove all the response history
+     * and update the listview to reflect the new data
+     */
+    private void clearResponseData(){
+        // clear the database
+        db.deleteAllResponses();
+        // update the listView
+        smsAdapter.changeCursor(db.getAllData());
+    }
 
 }
