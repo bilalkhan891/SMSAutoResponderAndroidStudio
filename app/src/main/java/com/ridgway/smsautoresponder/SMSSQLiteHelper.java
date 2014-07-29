@@ -149,7 +149,7 @@ public class SMSSQLiteHelper extends SQLiteOpenHelper {
         long responseDateMillis = 0;
 
         // 1. build the query
-        String query = "SELECT (strftime('%s', date) * 1000) AS date FROM " + TABLE_SMS
+        String query = "SELECT _id, (strftime('%s', date) * 1000) AS millis FROM " + TABLE_SMS
                 + " WHERE " + COLUMN_NUMBER + " = " + number
                 + " ORDER BY " + COLUMN_ID + " DESC";
 
@@ -165,7 +165,7 @@ public class SMSSQLiteHelper extends SQLiteOpenHelper {
             // Move to the first returned response, which
             // is the most recent one in the database.
             cursor.moveToFirst();
-            responseDateMillis = cursor.getLong(cursor.getColumnIndexOrThrow("date"));
+            responseDateMillis = cursor.getLong(cursor.getColumnIndexOrThrow("millis"));
             Log.d("SMSSQLiteHelper: getLatestResponseTime", "Found a previous response to: " + number);
         }
 
