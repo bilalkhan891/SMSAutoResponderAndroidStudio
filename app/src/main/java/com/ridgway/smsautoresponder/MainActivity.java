@@ -46,6 +46,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
 
 
@@ -53,7 +54,6 @@ public class MainActivity extends ActionBarActivity
                         implements DurationPickerDialog.DurationPickerDialogListener {
 
 	private static final int mNotificationId = 42; // Responses Sent Notification Id
-    Toast toastResponse = null; // holder for the debug toast settings.
 
 	// Setup option for debugging or not
 	// This can be used to conditionalize some functionality
@@ -189,12 +189,14 @@ public class MainActivity extends ActionBarActivity
 
                     Date now = new Date(nowMillis);
                     Date smsDate = new Date(recentMillis);
-                    Log.d("SMSAutoResponder", "Most Recent response for number: " + smsNumber + " is " + smsDate);
-                    Log.d("SMSAutoResponser", "Repeat Delay set to " + mrepeat_delay + "minutes");
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SS");
+                    String strDate = sdf.format(smsDate);
+                    Log.d("SMSAutoResponder", "Most Recent response for number: " + smsNumber + " is " + strDate);
+                    Log.d("SMSAutoResponser", "Repeat Delay set to " + mrepeat_delay + " minutes");
 
                     long diff = now.getTime() - smsDate.getTime();
                     long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
-                    Log.d("SMSAutoResponser", "Difference between now and recent response: " + minutes + "minutes");
+                    Log.d("SMSAutoResponser", "Difference between now and recent response: " + minutes + " minutes");
 
                     if( minutes < mrepeat_delay){
                         // Flag that we're not sending a response
@@ -218,7 +220,7 @@ public class MainActivity extends ActionBarActivity
                 smsAdapter.changeCursor(db.getAllData());
 
                 createNotification();
-	            toastResponse.show();
+	            toastResponseSent();
         	}
         }
     };
@@ -335,8 +337,7 @@ public class MainActivity extends ActionBarActivity
 		intentFilter = new IntentFilter();
 		intentFilter.addAction("SMS_RECEIVED_ACTION");
 		
-		ActivateButtons(receiverRegistered);		
-		updateResponseCount();
+		ActivateButtons(receiverRegistered);
 
 		// Setup click listeners so we can have two actions from the enable/disable button
 		Button enableBtn = (Button) findViewById(R.id.btnStart);
@@ -365,13 +366,6 @@ public class MainActivity extends ActionBarActivity
 	    }
 	    AdRequest adRequest = adBuilder.build();
 	    adView.loadAd(adRequest);
-	    
-	    // Create our debug toast message
-	    Context context = getApplicationContext();
-	    CharSequence text = getResources().getString(R.string.response_toast);
-	    int duration = Toast.LENGTH_SHORT;
-	    toastResponse = Toast.makeText(context, text, duration);
-	    toastResponse.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
 
 		if(mDebug){
 		    // Create toast message
@@ -381,6 +375,7 @@ public class MainActivity extends ActionBarActivity
 		}
 
 	}
+
 
 
     /**
@@ -448,7 +443,7 @@ public class MainActivity extends ActionBarActivity
 	}
 
     /**
-     * Clean up our Alarm objects.
+     * Clean up our Alarm & Receiver objects.
      */
 	@Override
 	protected void onDestroy(){
@@ -458,7 +453,8 @@ public class MainActivity extends ActionBarActivity
             alarmMgr.cancel(pendingAlarmIntent);
             unregisterReceiver(AlarmReceiver);
         }
-        
+
+        stopResponses();
         super.onDestroy();
 	}
 
@@ -533,6 +529,18 @@ public class MainActivity extends ActionBarActivity
         builder.setPositiveButton("OK", null);
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    // Response Sent Toast Message
+    public void toastResponseSent(){
+        // Create our toast message
+        Context context = getApplicationContext();
+        CharSequence text = getResources().getString(R.string.response_toast);
+        int duration = Toast.LENGTH_SHORT;
+        Toast toastResponse = Toast.makeText(context, text, duration);
+        toastResponse.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+        toastResponse.show();
+
     }
 
     // Toast to show debug messages
@@ -714,21 +722,6 @@ public class MainActivity extends ActionBarActivity
 		}
 
 	}
-	
-	/**
-	 * Show the count of recent responses
-	 */
-	private void updateResponseCount(){
-		// Update the response count in the UI only for Debug setups.
-		// Hide otherwise. Response count shows in Notifications.
-		TextView txtCount = (TextView) findViewById(R.id.TextViewResponseCountDisplay);
-		txtCount.setText(String.valueOf(responsesSent));		
-		txtCount.setVisibility(mDebug ? View.VISIBLE : View.INVISIBLE);
-		
-		TextView txtResponseCountTitle = (TextView) findViewById(R.id.TextViewResponseCountTitle);
-		txtResponseCountTitle.setVisibility(mDebug ? View.VISIBLE : View.INVISIBLE);
-	}
-	
 
 
     /**
@@ -754,9 +747,7 @@ public class MainActivity extends ActionBarActivity
 
         ActivateButtons(receiverRegistered);
 
-        updateResponseCount();
         createNotification();
-
 
         if(mbsilent_when_driving) {
             toggleRingerMode(true);

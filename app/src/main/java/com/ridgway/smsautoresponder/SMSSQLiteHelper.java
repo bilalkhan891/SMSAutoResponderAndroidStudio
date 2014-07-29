@@ -34,6 +34,11 @@ public class SMSSQLiteHelper extends SQLiteOpenHelper {
             + COLUMN_DATE + " timestamp not null default current_timestamp, "
             + COLUMN_NUMBER + " text not null);";
 
+
+    private static final String QUERY_ALL_DESC = "SELECT * FROM " + TABLE_SMS
+            + " ORDER BY " + COLUMN_ID + " DESC";
+
+
     public SMSSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -88,15 +93,11 @@ public class SMSSQLiteHelper extends SQLiteOpenHelper {
     public List<Integer> getAllResponses() {
         List<Integer> responses = new LinkedList<Integer>();
 
-        // 1. build the query
-        String query = "SELECT * FROM " + TABLE_SMS
-                + " ORDER BY " + COLUMN_ID + " DESC";
-
-        // 2. get reference to writable DB
+        // get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.rawQuery(QUERY_ALL_DESC, null);
 
-        // 3. go over each row, grab the id column value and add it to list
+        // go over each row, grab the id column value and add it to list
         int id;
         if (cursor.moveToFirst()) {
             do {
@@ -115,14 +116,10 @@ public class SMSSQLiteHelper extends SQLiteOpenHelper {
     // Get all the data return the appropriate Cursor.
     public Cursor getAllData(){
 
-        // select all the data sorted descending order by _id
-        String buildSQL = "SELECT * FROM " + TABLE_SMS
-                + " ORDER BY " + COLUMN_ID + " DESC";
-
-        Log.d("SMSSQLiteHelper", "getAllData SQL: " + buildSQL);
+        Log.d("SMSSQLiteHelper", "getAllData SQL: " + QUERY_ALL_DESC);
 
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.rawQuery(buildSQL, null);
+        return db.rawQuery(QUERY_ALL_DESC, null);
     }
 
     // Delete a stored response by database id value.
@@ -148,16 +145,15 @@ public class SMSSQLiteHelper extends SQLiteOpenHelper {
     public long getLatestResponseTime(String number){
         long responseDateMillis = 0;
 
-        // 1. build the query
-        String query = "SELECT _id, (strftime('%s', date) * 1000) AS millis FROM " + TABLE_SMS
+        String QUERY_LATEST_RESPONSE_BY_NUMBER = "SELECT _id, (strftime('%s', date) * 1000) AS millis FROM " + TABLE_SMS
                 + " WHERE " + COLUMN_NUMBER + " = " + number
                 + " ORDER BY " + COLUMN_ID + " DESC";
 
-        Log.d("SMSSQLiteHelper: getLatestResponseTime", "Query String: " + query);
+        Log.d("SMSSQLiteHelper: getLatestResponseTime", "Query String: " + QUERY_LATEST_RESPONSE_BY_NUMBER);
 
-        // 2. get reference to writable DB
+        // get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.rawQuery(QUERY_LATEST_RESPONSE_BY_NUMBER, null);
         if(cursor == null || cursor.getCount() == 0){
             Log.d("SMSSQLiteHelper: getLatestResponseTime", "No previous response sent to: " + number);
         }
