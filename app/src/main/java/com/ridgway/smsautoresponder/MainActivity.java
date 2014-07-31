@@ -1,5 +1,6 @@
 package com.ridgway.smsautoresponder;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -12,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.AudioManager;
@@ -45,7 +47,9 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdRequest.Builder;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.ActivityRecognitionClient;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
@@ -53,9 +57,11 @@ import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends ActionBarActivity
-                        implements DurationPickerDialog.DurationPickerDialogListener {
+                        implements DurationPickerDialog.DurationPickerDialogListener,
+        GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
 
 	private static final int mNotificationId = 42; // Responses Sent Notification Id
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
 	// Setup option for debugging or not
 	// This can be used to conditionalize some functionality
@@ -63,7 +69,31 @@ public class MainActivity extends ActionBarActivity
 	private boolean mFreeVersion = true; // Currently only have a free version, but just in case.
     private static final int SHORT_NUMBER_MAX_LENGTH = 7; // Max length of incoming message number that is considered short.
     private static final int DEFAULT_RESPONSE_REPEAT_DELAY = 5; // default delay between responses to the same number (in minutes)
-	
+
+    /**
+     * Activity Recognition member variables
+     */
+
+    // Constants that define the activity detection interval
+    public static final int MILLISECONDS_PER_SECOND = 1000;
+    public static final int DETECTION_INTERVAL_SECONDS = 20;
+    public static final int DETECTION_INTERVAL_MILLISECONDS =
+            MILLISECONDS_PER_SECOND * DETECTION_INTERVAL_SECONDS;
+
+    /*
+     * Store the PendingIntent used to send activity recognition events
+     * back to the app
+     */
+    private PendingIntent mActivityRecognitionPendingIntent;
+    // Store the current activity recognition client
+    private ActivityRecognitionClient mActivityRecognitionClient;
+
+    // Flag that indicates if a Activity Recognition request is underway.
+    private boolean mInProgress;
+
+
+    Context mContext;
+
 	// Setup member strings for main layout response
 	// display
     private String strDrive = "";
@@ -315,6 +345,8 @@ public class MainActivity extends ActionBarActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+        mInProgress = false;
+
         // Get a handle to our database, so we can store/retrieve
         // recent responses.
         db = new SMSSQLiteHelper(this);
@@ -405,27 +437,9 @@ public class MainActivity extends ActionBarActivity
 	protected void onResume(){
         super.onResume();
 
-    	googlePlayAvailable = false;
+        mContext = getApplicationContext();
+        googlePlayAvailable = servicesConnected();
 
-    	Context context = getApplicationContext();
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
-        if (resultCode == ConnectionResult.SUCCESS){
-        	googlePlayAvailable = true;
-        	googleDialogShown = false;
-        }
-        else if(( resultCode == ConnectionResult.SERVICE_MISSING ||
-                resultCode == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED ||
-                resultCode == ConnectionResult.SERVICE_DISABLED) && !googleDialogShown){
-            int requestCode = 10;
-            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(resultCode, this, requestCode);
-            dialog.show();
-            googleDialogShown = true;
-        }
-        else{
-    	    String text = getResources().getString(R.string.problem_dlg_msg);
-            showOkDialogWithText(this, text);
-        }
-        
 		if(mStart){
 			startResponses();
 		}
@@ -531,9 +545,99 @@ public class MainActivity extends ActionBarActivity
 	}
 
 
+    /**
+     * Handle Activity Awareness Connections
+     * * Called by Location Services once the location client is connected.
+     *
+     * Continue by requesting activity updates.
+     *
+     * @param bundle
+     */
+    @Override
+    public void onConnected(Bundle bundle){
+        /*
+         * Request activity recognition updates using the preset
+         * detection interval and PendingIntent. This call is
+         * synchronous.
+         */
+        mActivityRecognitionClient.requestActivityUpdates(
+                DETECTION_INTERVAL_MILLISECONDS,
+                mActivityRecognitionPendingIntent);
+        /*
+         * Since the preceding call is synchronous, turn off the
+         * in progress flag and disconnect the client
+         */
+        mInProgress = false;
+        mActivityRecognitionClient.disconnect();
 
+    }
 
-	/**
+    /**
+     * Handle Activity Awareness Disconnections
+     *
+     * Called by Location Services once the activity recognition
+     * client is disconnected.
+     *
+     */
+    @Override
+    public void onDisconnected(){
+        // Turn off the request flag
+        mInProgress = false;
+        // Delete the client
+        mActivityRecognitionClient = null;
+
+    }
+
+    /**
+     * Handle Activity Awareness Connection Failures
+     *
+     *  Implementation of OnConnectionFailedListener.onConnectionFailed
+     *
+     * @param connectionResult
+     */
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult){
+        // Turn off the request flag
+        mInProgress = false;
+        /*
+         * If the error has a resolution, start a Google Play services
+         * activity to resolve it.
+         */
+        if (connectionResult.hasResolution()) {
+            try {
+                connectionResult.startResolutionForResult(
+                        this,
+                        CONNECTION_FAILURE_RESOLUTION_REQUEST);
+            } catch (IntentSender.SendIntentException e) {
+                // Log the error
+                e.printStackTrace();
+            }
+            // If no resolution is available, display an error dialog
+        } else {
+            // Get the error code
+            int errorCode = connectionResult.getErrorCode();
+            // Get the error dialog from Google Play services
+            Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
+                    errorCode,
+                    this,
+                    CONNECTION_FAILURE_RESOLUTION_REQUEST);
+            // If Google Play services can provide an error dialog
+            if (errorDialog != null) {
+                // Create a new DialogFragment for the error dialog
+                ErrorDialogFragment errorFragment =
+                        new ErrorDialogFragment();
+                // Set the dialog in the DialogFragment
+                errorFragment.setDialog(errorDialog);
+                // Show the error dialog in the DialogFragment
+                errorFragment.show(
+                        getSupportFragmentManager(),
+                        "Activity Recognition");
+            }
+        }
+
+    }
+
+    /**
 	 * **************************************************
      *
 	 * All the public class methods & callback methods
@@ -978,4 +1082,147 @@ public class MainActivity extends ActionBarActivity
         smsAdapter.changeCursor(db.getAllData());
     }
 
+
+    /**
+     * Check if the Google Play Services are connected.
+     *
+     * We need this for Location Services and Ads.
+     *
+     * @return
+     */
+    private boolean servicesConnected(){
+
+        boolean bAvailable = false;
+        Context context = getApplicationContext();
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
+        if (resultCode == ConnectionResult.SUCCESS){
+            // In debug mode, log the status
+            Log.d("Activity Recognition",
+                    "Google Play services is available.");
+            bAvailable = true;
+            googleDialogShown = false;
+        }
+        else {
+            // Get the error dialog from Google Play services
+            Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
+                    resultCode,
+                    this,
+                    CONNECTION_FAILURE_RESOLUTION_REQUEST);
+
+            // If Google Play services can provide an error dialog
+            if (errorDialog != null) {
+                // Create a new DialogFragment for the error dialog
+                ErrorDialogFragment errorFragment =
+                        new ErrorDialogFragment();
+                // Set the dialog in the DialogFragment
+                errorFragment.setDialog(errorDialog);
+                // Show the error dialog in the DialogFragment
+                errorFragment.show(
+                        getSupportFragmentManager(),
+                        "Activity Recognition");
+            }
+            bAvailable = false;
+        }
+
+        return bAvailable;
+    }
+
+    /**
+     *     Define a DialogFragment that displays the error dialog
+     */
+    public static class ErrorDialogFragment extends DialogFragment {
+        // Global field to contain the error dialog
+        private Dialog mDialog;
+        // Default constructor. Sets the dialog field to null
+        public ErrorDialogFragment() {
+            super();
+            mDialog = null;
+        }
+        // Set the dialog to display
+        public void setDialog(Dialog dialog) {
+            mDialog = dialog;
+        }
+        // Return a Dialog to the DialogFragment.
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return mDialog;
+        }
+    }
+
+    /**
+     * Handle results returned to the FragmentActivity
+     * by Google Play services
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        // Decide what to do based on the original request code
+        switch (requestCode) {
+            case CONNECTION_FAILURE_RESOLUTION_REQUEST :
+            /*
+             * If the result code is Activity.RESULT_OK, try
+             * to connect again
+             */
+                switch (resultCode) {
+                    case Activity.RESULT_OK :
+                    /*
+                     * Try the request again
+                     */
+                     servicesConnected();
+                     break;
+                }
+        }
+    }
+
+    /**
+     * Request activity recognition updates based on the current
+     * detection interval.
+     *
+     */
+    public void startUpdates() {
+        // Check for Google Play services
+
+        if (!servicesConnected()) {
+            return;
+        }
+        // If a request is not already underway
+        if (!mInProgress) {
+            // Indicate that a request is in progress
+            mInProgress = true;
+            // Request a connection to Location Services
+            mActivityRecognitionClient.connect();
+            //
+        } else {
+            /*
+             * A request is already underway. You can handle
+             * this situation by disconnecting the client,
+             * re-setting the flag, and then re-trying the
+             * request.
+             */
+        }
+    }
+
+    private void startActivityRecognitionClient(){
+                /*
+         * Instantiate a new activity recognition client. Since the
+         * parent Activity implements the connection listener and
+         * connection failure listener, the constructor uses "this"
+         * to specify the values of those parameters.
+         */
+        mActivityRecognitionClient =
+                new ActivityRecognitionClient(mContext, this, this);
+        /*
+         * Create the PendingIntent that Location Services uses
+         * to send activity recognition updates back to this app.
+         */
+        Intent intent = new Intent(
+                mContext, ActivityRecognitionIntentService.class);
+        /*
+         * Return a PendingIntent that starts the IntentService.
+         */
+        mActivityRecognitionPendingIntent =
+                PendingIntent.getService(mContext, 0, intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+    }
 }
