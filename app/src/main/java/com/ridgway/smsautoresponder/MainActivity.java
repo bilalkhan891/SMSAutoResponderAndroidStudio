@@ -58,7 +58,8 @@ import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends ActionBarActivity
                         implements DurationPickerDialog.DurationPickerDialogListener,
-        GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
+                                    GooglePlayServicesClient.ConnectionCallbacks,
+                                    GooglePlayServicesClient.OnConnectionFailedListener {
 
 	private static final int mNotificationId = 42; // Responses Sent Notification Id
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -79,6 +80,10 @@ public class MainActivity extends ActionBarActivity
     public static final int DETECTION_INTERVAL_SECONDS = 20;
     public static final int DETECTION_INTERVAL_MILLISECONDS =
             MILLISECONDS_PER_SECOND * DETECTION_INTERVAL_SECONDS;
+
+    // Classify the type of Activity Recognition request we're operating on
+    public enum REQUEST_TYPE {START, STOP}
+    private REQUEST_TYPE mRequestType;
 
     /*
      * Store the PendingIntent used to send activity recognition events
@@ -343,8 +348,11 @@ public class MainActivity extends ActionBarActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        Log.d("SMSAutoResponder", "onCreate().");
+
 		setContentView(R.layout.activity_main);
 
+        // Set initial Location query Activity state
         mInProgress = false;
 
         // Get a handle to our database, so we can store/retrieve
@@ -419,16 +427,6 @@ public class MainActivity extends ActionBarActivity
 
 
     /**
-     * Save the current selection in the spinner when
-     * moving to the Paused State
-     */
-	@Override
-	protected void onPause(){
-        super.onPause();
-        saveSpinner();
-	}
-
-    /**
      * Check the state of the Google Play Services on the device
      * just before the App is enabled and displayed.
      * Make sure the responses are started, if we were started previously.
@@ -436,6 +434,7 @@ public class MainActivity extends ActionBarActivity
 	@Override
 	protected void onResume(){
         super.onResume();
+        Log.d("SMSAutoResponder", "onResume().");
 
         mContext = getApplicationContext();
         googlePlayAvailable = servicesConnected();
@@ -453,6 +452,17 @@ public class MainActivity extends ActionBarActivity
 
 	}
 
+    /**
+     * Save the current selection in the spinner when
+     * moving to the Paused State
+     */
+    @Override
+    protected void onPause(){
+        super.onPause();
+        Log.d("SMSAutoResponder", "onPause().");
+        saveSpinner();
+    }
+
 
     /**
      * Another instance where we make sure the Spinner state
@@ -461,14 +471,7 @@ public class MainActivity extends ActionBarActivity
 	@Override
 	protected void onStop(){
         super.onStop();
-        saveSpinner();
-	}
-
-    /**
-     * Clean up our Alarm & Receiver objects.
-     */
-	@Override
-	protected void onDestroy(){
+        Log.d("SMSAutoResponder", "onStop().");
 
         // cleanup the AlarmManager and Alarm Broadcast Receiver
         if(alarmMgr != null) {
@@ -477,7 +480,15 @@ public class MainActivity extends ActionBarActivity
         }
 
         stopResponses();
+	}
+
+    /**
+     * Clean up our Alarm & Receiver objects.
+     */
+	@Override
+	protected void onDestroy(){
         super.onDestroy();
+        Log.d("SMSAutoResponder", "onDestroy().");
 	}
 
     /**
@@ -521,7 +532,7 @@ public class MainActivity extends ActionBarActivity
 	    	.setPositiveButton(R.string.dlg_yes, new OnClickListener() {
                 public void onClick(DialogInterface arg0, int arg1) {
                     //do stuff onclick of YES
-                    stopReceiver();
+                    stopResponses();
 
                     // if the preferences are set for clearing data on exit,
                     // then execute that option.
@@ -555,22 +566,38 @@ public class MainActivity extends ActionBarActivity
      */
     @Override
     public void onConnected(Bundle bundle){
-        /*
-         * Request activity recognition updates using the preset
-         * detection interval and PendingIntent. This call is
-         * synchronous.
-         */
-        mActivityRecognitionClient.requestActivityUpdates(
-                DETECTION_INTERVAL_MILLISECONDS,
-                mActivityRecognitionPendingIntent);
-        /*
-         * Since the preceding call is synchronous, turn off the
-         * in progress flag and disconnect the client
-         */
-        mInProgress = false;
-        mActivityRecognitionClient.disconnect();
 
+        switch (mRequestType) {
+            case START:
+               /*
+                 * Request activity recognition updates using the preset
+                 * detection interval and PendingIntent. This call is
+                 * synchronous.
+                 */
+                mActivityRecognitionClient.requestActivityUpdates(
+                        DETECTION_INTERVAL_MILLISECONDS,
+                        mActivityRecognitionPendingIntent);
+                /*
+                 * Since the preceding call is synchronous, turn off the
+                 * in progress flag and disconnect the client
+                 */
+                mInProgress = false;
+                mActivityRecognitionClient.disconnect();
+                break;
+
+            case STOP :
+                mActivityRecognitionClient.removeActivityUpdates(
+                                                mActivityRecognitionPendingIntent);
+                break;
+
+            default:
+                Log.d("SMSAutoResponder", "onConnected: Unknown request type in onConnected().");
+                break;
+
+
+        }
     }
+
 
     /**
      * Handle Activity Awareness Disconnections
@@ -1179,12 +1206,16 @@ public class MainActivity extends ActionBarActivity
      * detection interval.
      *
      */
-    public void startUpdates() {
+    public void startActivityRecognitionUpdates() {
+        // Set the request type to START
+        mRequestType = REQUEST_TYPE.START;
+
         // Check for Google Play services
 
         if (!servicesConnected()) {
             return;
         }
+
         // If a request is not already underway
         if (!mInProgress) {
             // Indicate that a request is in progress
@@ -1203,7 +1234,7 @@ public class MainActivity extends ActionBarActivity
     }
 
     private void startActivityRecognitionClient(){
-                /*
+        /*
          * Instantiate a new activity recognition client. Since the
          * parent Activity implements the connection listener and
          * connection failure listener, the constructor uses "this"
@@ -1224,5 +1255,39 @@ public class MainActivity extends ActionBarActivity
                 PendingIntent.getService(mContext, 0, intent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
 
+    }
+
+    /**
+     * Turn off activity recognition updates
+     *
+     */
+    public void stopActivityRecognitionUpdates() {
+        // Set the request type to STOP
+        mRequestType = REQUEST_TYPE.STOP;
+
+        /*
+         * Test for Google Play services after setting the request type.
+         * If Google Play services isn't present, the request can be
+         * restarted.
+         */
+        if (!servicesConnected()) {
+            return;
+        }
+
+        // If a request is not already underway
+        if (!mInProgress) {
+            // Indicate that a request is in progress
+            mInProgress = true;
+            // Request a connection to Location Services
+            mActivityRecognitionClient.connect();
+            //
+        } else {
+            /*
+             * A request is already underway. You can handle
+             * this situation by disconnecting the client,
+             * re-setting the flag, and then re-trying the
+             * request.
+             */
+        }
     }
 }

@@ -95,7 +95,8 @@
             android:layout_weight="1"
             android:textSize="@dimen/text_size_label"
             android:textStyle="bold"
-            android:text="@string/listview_title" />
+            android:text="@string/listview_title"
+            android:paddingBottom="5dp" />
 
         <LinearLayout
             android:layout_width="match_parent"

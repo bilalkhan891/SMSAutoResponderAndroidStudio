@@ -30,6 +30,10 @@
     <string name="activity_hiking">Walking/Hiking</string>
     <string name="activity_donotdisturb">Do Not Disturb</string>
 
+    <string name="activity_stationary">still</string>
+    <string name="activity_unknown">unknown</string>
+    <string name="activity_tilting">tilting</string>
+
     <string name="driving_title">Driving Response</string>
     <string name="biking_title">Cycling Response</string>
     <string name="running_title">Running Response</string>
