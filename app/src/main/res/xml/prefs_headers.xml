@@ -9,4 +9,7 @@
     <header android:fragment="com.ridgway.smsautoresponder.DelayPanelFragment"
         android:title="Delays"
         android:summary="Delay Settings" />
+    <header android:fragment="com.ridgway.smsautoresponder.DisplayPanelFragment"
+        android:title="Display"
+        android:summary="Display Settings" />
 </preference-headers>

@@ -22,7 +22,7 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.Smsautoresponder" >
         <activity
-            android:name="com.ridgway.smsautoresponder.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,9 +31,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.ridgway.smsautoresponder.PrefsActivity"
+            android:name=".PrefsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="com.ridgway.smsautoresponder.MainActivity" >
+            android:parentActivityName=".MainActivity" >
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
@@ -41,21 +41,23 @@
                 android:value="com.ridgway.smsautoresponder.MainActivity" />
         </activity>
 
-        <receiver android:name="com.ridgway.smsautoresponder.AutoSMSReceiver" >
+        <receiver android:name=".AutoSMSReceiver" >
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.ridgway.smsautoresponder.AlarmReceiver" >
+        <receiver android:name=".AlarmReceiver" >
             <intent-filter>
                 <action android:name="com.ridgway.smsautoresponder.stopresponses" />
             </intent-filter>
         </receiver>
+
         <service
-            android:name="com.ridgway.smsautoresponder.ActivityRecognitionIntentService"
-            android:label="@string/app_name"
-            android:exported="false">
+            android:name=".ActivityRecognitionIntentService"
+            android:exported="false"
+            android:label="@string/app_name" >
         </service>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -63,6 +65,22 @@
         <activity
             android:name="com.google.android.gms.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
+        <activity
+            android:name=".ActivityRecognitionListActivity"
+            android:label="@string/title_activity_activity_recognition_list"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ridgway.smsautoresponder.MainActivity" />
+        </activity>
+        <activity
+            android:name=".SMSResponseListActivity"
+            android:label="@string/title_activity_smsresponse_list"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ridgway.smsautoresponder.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

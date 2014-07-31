@@ -48,11 +48,15 @@ public class ActivityRecognitionIntentService extends IntentService {
 
             /*
              * At this point, you have retrieved all the information
-             * for the current update. You can display this
+             * for the current update. We can display this
              * information to the user in a notification, or
              * send it to an Activity or Service in a broadcast
              * Intent.
              */
+
+            // add a new activity entry to the database
+            ActivityRecognitionSQLiteHelper dbActivities = new ActivityRecognitionSQLiteHelper(this);
+            dbActivities.addActivity(activityName);
 
 
         } else {

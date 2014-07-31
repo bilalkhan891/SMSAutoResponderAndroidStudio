@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent" >
+
+
+    <PreferenceCategory
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:key="display_options"
+        android:title="Display Options" >
+
+        <CheckBoxPreference
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:defaultValue="true"
+            android:key="show_responses_on_main_activity"
+            android:summary="Display recent responses list on the main screen"
+            android:title="Display Responses"
+            />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

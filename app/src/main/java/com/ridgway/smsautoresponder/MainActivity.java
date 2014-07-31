@@ -118,6 +118,7 @@ public class MainActivity extends ActionBarActivity
     private boolean mbignore_short = true; // do we ignore texts from short numbers
     private boolean mbsilent_when_driving = true; // do we silence the phone ringer in driving mode
     private boolean mclear_data_on_exit = false; // clear the response data history on app exit
+    private boolean mshow_responses_on_main_activity = true; // show the recent responses on the main activity screen
 
     private boolean receiverRegistered = false; // Is our broadcast receiver registered
     private boolean googlePlayAvailable = false; // Are Google Play services available on the device
@@ -422,6 +423,8 @@ public class MainActivity extends ActionBarActivity
 		    showDebugToast(txt);
 		}
 
+        showResponsesList();
+
 	}
 
 
@@ -521,14 +524,28 @@ public class MainActivity extends ActionBarActivity
         }
 
         if (id == R.id.action_clear_data) {
-            clearResponseData();
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.acknowledge_delete_responses_title )
+                    .setMessage(R.string.acknowledge_delete_responses_msg)
+                    .setPositiveButton(R.string.dlg_yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            //do stuff onclick of YES
+                            // clear the database
+                            clearResponseData();
+                        }
+                    })
+                    .setNegativeButton(R.string.dlg_cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            //do nothing onclick of CANCEL
+                        }
+                    }).show();
             return true;
         }
 
 		if (id == R.id.action_exit) {
 			new AlertDialog.Builder(this)
-	    	.setTitle(R.string.acknowledgeexit_title )
-	    	.setMessage(R.string.acknowledgeexit_msg)
+	    	.setTitle(R.string.acknowledge_exit_title )
+	    	.setMessage(R.string.acknowledge_exit_msg)
 	    	.setPositiveButton(R.string.dlg_yes, new OnClickListener() {
                 public void onClick(DialogInterface arg0, int arg1) {
                     //do stuff onclick of YES
@@ -832,6 +849,7 @@ public class MainActivity extends ActionBarActivity
     }
 	
 	/**
+     *
 	 * Update the response text based on the spinner selection
 	 */
 	private void updateResponse(){
@@ -1065,7 +1083,7 @@ public class MainActivity extends ActionBarActivity
         mbignore_short = settingsPrefs.getBoolean(getString(R.string.saved_ignore_short), true);
         mbsilent_when_driving = settingsPrefs.getBoolean(getString(R.string.saved_silent_when_driving), false);
         mclear_data_on_exit = settingsPrefs.getBoolean(getString(R.string.saved_clear_data_on_exit), false);
-
+        mshow_responses_on_main_activity = settingsPrefs.getBoolean(getString(R.string.saved_show_responses_on_main_activity), true);
     }
 
     /**
@@ -1289,5 +1307,24 @@ public class MainActivity extends ActionBarActivity
              * request.
              */
         }
+    }
+
+    /**
+     * Update the visibility of the response list and title
+     * based on the preference setting
+     */
+    private void showResponsesList(){
+
+        // Get the views we want to hide/show
+        TextView responseTitle = (TextView) findViewById(R.id.ListViewTitle);
+        ListView responseList = (ListView) findViewById(R.id.listView);
+
+        // figure out the visibility option
+        int visibility = mshow_responses_on_main_activity ? View.VISIBLE : View.INVISIBLE;
+
+        // hide/show the list and title
+        responseTitle.setVisibility(visibility);
+        responseList.setVisibility(visibility);
+
     }
 }
