@@ -37,6 +37,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -274,7 +275,7 @@ public class MainActivity extends ActionBarActivity
                 Toast.makeText(c, getString(R.string.auto_disable_response_msg), Toast.LENGTH_LONG).show();
             }
             Log.d("SMSAutoResponder", "Alarm Received. Stopping Responses" );
-            stopResponses();
+            stopResponses(false);
         }
     };
 
@@ -353,6 +354,8 @@ public class MainActivity extends ActionBarActivity
 
 		setContentView(R.layout.activity_main);
 
+        mContext = getApplicationContext();
+
         // Set initial Location query Activity state
         mInProgress = false;
 
@@ -423,7 +426,15 @@ public class MainActivity extends ActionBarActivity
 		    showDebugToast(txt);
 		}
 
+        // Toggle the response list on the main screen
+        // depending on the preferences value.
         showResponsesList();
+
+        googlePlayAvailable = servicesConnected();
+
+        // Create the Activity Recognition Client
+        // so we're ready when the user clicks enable.
+        startActivityRecognitionClient();
 
 	}
 
@@ -439,10 +450,11 @@ public class MainActivity extends ActionBarActivity
         super.onResume();
         Log.d("SMSAutoResponder", "onResume().");
 
-        mContext = getApplicationContext();
+        // Check again, just in case something
+        // has changed while we were away.x
         googlePlayAvailable = servicesConnected();
 
-		if(mStart){
+        if(mStart){
 			startResponses();
 		}
 
@@ -476,14 +488,6 @@ public class MainActivity extends ActionBarActivity
         super.onStop();
         Log.d("SMSAutoResponder", "onStop().");
 
-        stopResponses();
-
-        // cleanup the AlarmManager and Alarm Broadcast Receiver
-        if(alarmMgr != null) {
-            alarmMgr.cancel(pendingAlarmIntent);
-            unregisterReceiver(AlarmReceiver);
-        }
-
 	}
 
     /**
@@ -493,7 +497,16 @@ public class MainActivity extends ActionBarActivity
 	protected void onDestroy(){
         super.onDestroy();
         Log.d("SMSAutoResponder", "onDestroy().");
-	}
+
+        stopResponses(true);
+
+        // cleanup the AlarmManager and Alarm Broadcast Receiver
+        if(alarmMgr != null) {
+            alarmMgr.cancel(pendingAlarmIntent);
+            unregisterReceiver(AlarmReceiver);
+        }
+
+    }
 
     /**
      * Menu display callback.
@@ -519,27 +532,19 @@ public class MainActivity extends ActionBarActivity
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
+
         if (id == R.id.action_preferences) {
             openPreferences();
             return true;
         }
 
-        if (id == R.id.action_clear_data) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.acknowledge_delete_responses_title )
-                    .setMessage(R.string.acknowledge_delete_responses_msg)
-                    .setPositiveButton(R.string.dlg_yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface arg0, int arg1) {
-                            //do stuff onclick of YES
-                            // clear the database
-                            clearResponseData();
-                        }
-                    })
-                    .setNegativeButton(R.string.dlg_cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface arg0, int arg1) {
-                            //do nothing onclick of CANCEL
-                        }
-                    }).show();
+        if (id == R.id.action_response_list) {
+            openResponseList();
+            return true;
+        }
+
+        if (id == R.id.action_activity_list) {
+            openActivitiesList();
             return true;
         }
 
@@ -556,6 +561,7 @@ public class MainActivity extends ActionBarActivity
                     // then execute that option.
                     if (mclear_data_on_exit) {
                         clearResponseData();
+                        clearActivityData();
                     }
 
                     // now exit the application and unload from memory
@@ -743,6 +749,23 @@ public class MainActivity extends ActionBarActivity
         startActivity(intent);
     }
 
+    /**
+     * Respond to the responses list menu item
+     */
+    public void openResponseList(){
+        // Open the settings panel
+        Intent intent = new Intent(this, SMSResponseListActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Respond to the Activities menu item
+     */
+    public void openActivitiesList(){
+        // Open the settings panel
+        Intent intent = new Intent(this, ActivityRecognitionListActivity.class);
+        startActivity(intent);
+    }
 
     /**
      * return the current value of the response message
@@ -931,9 +954,24 @@ public class MainActivity extends ActionBarActivity
         // in reply to incoming text messages.
         startActivityRecognitionUpdates();
     }
-    
 
+
+    /**
+     * Most places we call stopReponses we don't need to pass
+     * a value, so we setup this one to pass false.
+     * Only from onStop() do we bypass this method and
+     * use true.
+     */
     private void stopResponses(){
+        stopResponses(false);
+    }
+
+    /**
+     * Stop the responses, stop activity recognition, etc.
+     *
+     * @param onStop true if called from onStop()
+     */
+    private void stopResponses(boolean onStop){
         Log.d("SMSAutoResponder", "stopResponses" );
         stopReceiver();
     	ActivateButtons(receiverRegistered);
@@ -944,7 +982,7 @@ public class MainActivity extends ActionBarActivity
 
         // Stop tracking the Activity Recognition updates
         // from the Google Play Services location services.
-        stopActivityRecognitionUpdates();
+        stopActivityRecognitionUpdates(onStop);
     }
 
 
@@ -1255,11 +1293,12 @@ public class MainActivity extends ActionBarActivity
 
         // If a request is not already underway
         if (!mInProgress) {
-            // Indicate that a request is in progress
-            mInProgress = true;
-            // Request a connection to Location Services
-            mActivityRecognitionClient.connect();
-            //
+            if(mActivityRecognitionClient != null) {
+                // Indicate that a request is in progress
+                mInProgress = true;
+                // Request a connection to Location Services
+                mActivityRecognitionClient.connect();
+            }
         } else {
             /*
              * A request is already underway. You can handle
@@ -1274,20 +1313,28 @@ public class MainActivity extends ActionBarActivity
 
         Log.d("SMSAutoResponder", "startActivityRecognitionClient" );
 
+        if(!googlePlayAvailable){
+            // We can't use this feature
+            // if Google Play Services aren't available
+            // so just return.
+            return;
+        }
+
         /*
          * Instantiate a new activity recognition client. Since the
          * parent Activity implements the connection listener and
          * connection failure listener, the constructor uses "this"
          * to specify the values of those parameters.
          */
-        mActivityRecognitionClient =
-                new ActivityRecognitionClient(mContext, this, this);
+        mActivityRecognitionClient = new ActivityRecognitionClient(mContext, this, this);
+
         /*
          * Create the PendingIntent that Location Services uses
          * to send activity recognition updates back to this app.
          */
         Intent intent = new Intent(
                 mContext, ActivityRecognitionIntentService.class);
+
         /*
          * Return a PendingIntent that starts the IntentService.
          */
@@ -1301,7 +1348,7 @@ public class MainActivity extends ActionBarActivity
      * Turn off activity recognition updates
      *
      */
-    public void stopActivityRecognitionUpdates() {
+    public void stopActivityRecognitionUpdates(boolean onStop) {
 
         Log.d("SMSAutoResponder", "stopActivityRecognitionUpdates" );
 
@@ -1311,19 +1358,22 @@ public class MainActivity extends ActionBarActivity
         /*
          * Test for Google Play services after setting the request type.
          * If Google Play services isn't present, the request can be
-         * restarted.
+         * restarted. Don't check Google Service if we're in onStop() though.
          */
-        if (!servicesConnected()) {
-            return;
+        if (!onStop){
+            if(!servicesConnected()) {
+                return;
+            }
         }
 
         // If a request is not already underway
         if (!mInProgress) {
-            // Indicate that a request is in progress
-            mInProgress = true;
-            // Request a connection to Location Services
-            mActivityRecognitionClient.connect();
-            //
+            if(mActivityRecognitionClient != null) {
+                // Indicate that a request is in progress
+                mInProgress = true;
+                // Request a connection to Location Services
+                mActivityRecognitionClient.connect();
+            }
         } else {
             /*
              * A request is already underway. You can handle
@@ -1344,6 +1394,7 @@ public class MainActivity extends ActionBarActivity
         // Get the views we want to hide/show
         TextView responseTitle = (TextView) findViewById(R.id.ListViewTitle);
         ListView responseList = (ListView) findViewById(R.id.listView);
+        LinearLayout responseLayout = (LinearLayout) findViewById(R.id.listViewContainer);
 
         // figure out the visibility option
         int visibility = mshow_responses_on_main_activity ? View.VISIBLE : View.INVISIBLE;
@@ -1351,6 +1402,19 @@ public class MainActivity extends ActionBarActivity
         // hide/show the list and title
         responseTitle.setVisibility(visibility);
         responseList.setVisibility(visibility);
+        responseLayout.setVisibility(visibility);
 
+    }
+
+    /**
+     * Clear all the Activity History on App exit
+     * if the preference has been set to do so.
+     */
+    private void clearActivityData(){
+        // Get a handle to our database, so we can store/retrieve
+        // recent activities.
+        ActivityRecognitionSQLiteHelper dbActivities = new ActivityRecognitionSQLiteHelper(this);
+        // clear the database
+        dbActivities.deleteAllActivities();
     }
 }

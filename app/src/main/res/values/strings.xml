@@ -14,6 +14,8 @@
     <string name="action_configuration">Configuration</string>
     <string name="action_preferences">Preferences</string>
     <string name="action_clear_data">Clear Data</string>
+    <string name="action_response_list">Responses</string>
+    <string name="action_activity_list">Activities</string>
     <string name="response_driving">I\'m driving right now. I\'ll get back to you when I arrive at my destination.</string>
     <string name="response_cycling">I\'m enjoying my bike ride at the moment. I\'ll get back to you later.</string>
     <string name="response_hiking">I\'m out for a stroll. I\'ll talk to you later.</string>
@@ -32,6 +34,13 @@
     <string name="running_title">Running Response</string>
     <string name="hiking_title">Hiking Response</string>
     <string name="donot_disturb_title">Do Not Disturb Response</string>
+    <string name="response_options_title">Response Options</string>
+    <string name="sms_options_title">SMS Options</string>
+    <string name="driving_summary">Response sent while driving</string>
+    <string name="biking_summary">Response sent while cycling</string>
+    <string name="running_summary">Response sent while running</string>
+    <string name="hiking_summary">Response sent while hiking</string>
+    <string name="donot_disturb_summary">Response sent while set to Do Not Disturb</string>
 
     <string-array name="activity_array">
         <item>@string/activity_driving</item>
@@ -57,6 +66,8 @@
     <string name="saved_silent_when_driving">silent_when_driving</string>
     <string name="saved_clear_data_on_exit">clear_data_on_exit</string>
     <string name="saved_show_responses_on_main_activity">show_responses_on_main_activity</string>
+    <string name="saved_response_options">response_options</string>
+    <string name="saved_sms_options">sms_options</string>
     <string name="longclick_toast">A long click will disable responses.</string>
     <string name="short_ignore_toast">Ignoring short number</string>
     <string name="unknown_ignore_toast">Ignoring text from unknown number</string>
@@ -92,8 +103,24 @@
     <string name="st_time">At</string>
     <string name="list_header_date">Date</string>
     <string name="list_header_number">Number</string>
-    <string name="title_activity_activity_recognition_list">ActivityRecognitionListActivity</string>
-    <string name="title_activity_smsresponse_list">SMSResponseListActivity</string>
+    <string name="title_activity_activity_recognition_list">Activity Recognition List</string>
+    <string name="title_activity_smsresponse_list">SMS Response List</string>
     <string name="activity_listview_title">Recent Recognized Activities</string>
     <string name="list_header_activity">Activity</string>
+
+    <string name="ResponsePanel_Title">Configuration</string>
+    <string name="ResponsePanel_Summary">Customize Responses</string>
+    <string name="SettingsPanel_Title">Settings</string>
+    <string name="SettingsPanel_Summary">SMS Settings</string>
+    <string name="DelaysPanel_Title">Delays</string>
+    <string name="DelaysPanel_Summary">Message and Auto Disable Delay Settings</string>
+    <string name="DisplayPanel_Title">Display</string>
+    <string name="DisplayPanel_Summary">Display Settings</string>
+
+    <string name="SilentCheck_Title">Silence Phone</string>
+    <string name="SilentCheck_Summary">Silence the phone ringer when in driving mode</string>
+    <string name="Check_Title"></string>
+    <string name="Check_Summary"></string>
+    <string name="Check_Title"></string>
+    <string name="Check_Summary"></string>
 </resources>

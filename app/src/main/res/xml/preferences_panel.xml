@@ -6,15 +6,15 @@
 	<PreferenceCategory
 	    android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:key="sms_options"
-        android:title="SMS Options" >
+        android:key="@string/saved_sms_options"
+        android:title="@string/sms_options_title" >
 
         <CheckBoxPreference
 		    android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:key="silent_when_driving"
-            android:summary="Silence the phone ringer when in driving mode"
-            android:title="Silence Phone"
+            android:key="@string/saved_silent_when_driving"
+            android:summary="@string/SilentCheck_Summary"
+            android:title="@string/SilentCheck_Title"
             android:defaultValue="true"
         />
         
@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:key="clear_data_on_exit"
-            android:summary="Clear response history on App exit."
+            android:summary="Clear response and activity history on App exit."
             android:title="Clear Data on exit"
             android:defaultValue="false"
             />

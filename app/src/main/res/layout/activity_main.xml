@@ -101,6 +101,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:id="@+id/listViewContainer"
             android:orientation="vertical"
             android:background="@drawable/ab_solid_smsautoresponder"
             android:layout_weight="8" >

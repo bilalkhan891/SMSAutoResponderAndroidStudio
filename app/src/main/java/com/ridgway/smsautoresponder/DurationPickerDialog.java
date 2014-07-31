@@ -86,6 +86,7 @@ public class DurationPickerDialog extends DialogFragment {
         // Pass null as the parent view because its going in the dialog layout
         View view = inflater.inflate(R.layout.fragment_duration_picker_dialog, null);
         builder.setView(view);
+        builder.setTitle(R.string.duration_picker_title );
 
         final SeekBar durationBar = (SeekBar) view.findViewById(R.id.seekBar);
 

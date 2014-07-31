@@ -6,15 +6,15 @@
 	<PreferenceCategory
 	    android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:key="response_options"
-        android:title="Response Options" >
+        android:key="@string/saved_response_options"
+        android:title="@string/response_options_title" >
 
         <EditTextPreference
 		    android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:key="@string/saved_response_driving"
-            android:summary="Response while driving"
-            android:title="Driving Response"
+            android:summary="@string/driving_summary"
+            android:title="@string/driving_title"
             android:defaultValue="@string/response_driving"
             />
         
@@ -22,8 +22,8 @@
 		    android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:key="@string/saved_response_biking"
-            android:summary="Response while cycling"
-            android:title="Biking Response"
+            android:summary="@string/biking_summary"
+            android:title="@string/biking_title"
             android:defaultValue="@string/response_cycling"
         />
         
@@ -31,8 +31,8 @@
 		    android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:key="@string/saved_response_hiking"
-            android:summary="Response while hiking"
-            android:title="Hiking Response"
+            android:summary="@string/hiking_summary"
+            android:title="@string/hiking_title"
             android:defaultValue="@string/response_hiking"
         />
 
@@ -40,8 +40,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:key="@string/saved_response_running"
-            android:summary="Response while running"
-            android:title="Running Response"
+            android:summary="@string/running_summary"
+            android:title="@string/running_title"
             android:defaultValue="@string/response_running"
             />
 
@@ -49,8 +49,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:key="@string/saved_response_donotdisturb"
-            android:summary="Do Not Disturb Option"
-            android:title="DoNot Disturb Response"
+            android:summary="@string/donot_disturb_summary"
+            android:title="@string/donot_disturb_title"
             android:defaultValue="@string/response_donot_disturb"
         />
 

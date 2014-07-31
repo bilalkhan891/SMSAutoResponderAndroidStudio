@@ -25,7 +25,7 @@ public class ActivityRecognitionListActivity extends ActionBarActivity {
         setContentView(R.layout.activity_activity_recognition_list);
 
         // Get a handle to our database, so we can store/retrieve
-        // recent responses.
+        // recent activities.
         dbActivities = new ActivityRecognitionSQLiteHelper(this);
 
         // Database query can be a time consuming task ..

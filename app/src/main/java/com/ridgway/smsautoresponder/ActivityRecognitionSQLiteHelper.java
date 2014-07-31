@@ -24,7 +24,7 @@ public class ActivityRecognitionSQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ACTIVITY = "activity";
     private static final String[] COLUMNS = {COLUMN_ID, COLUMN_DATE, COLUMN_ACTIVITY};
 
-    private static final String DATABASE_NAME = "sms.db";
+    private static final String DATABASE_NAME = "activity.db";
     private static final int DATABASE_VERSION = 1;
 
     // Database creation sql statement
@@ -35,7 +35,10 @@ public class ActivityRecognitionSQLiteHelper extends SQLiteOpenHelper {
             + COLUMN_ACTIVITY + " text not null);";
 
 
-    private static final String QUERY_ALL_DESC = "SELECT * FROM " + TABLE_ACTIVITY
+    private static final String QUERY_ALL_DESC = "SELECT "
+            + COLUMN_ID + ", (datetime(" + COLUMN_DATE + ", 'localtime')) AS "
+            + COLUMN_DATE + ", "
+            + COLUMN_ACTIVITY + " FROM " + TABLE_ACTIVITY
             + " ORDER BY " + COLUMN_ID + " DESC";
 
 

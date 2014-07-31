@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
     <header android:fragment="com.ridgway.smsautoresponder.ResponsePanelFragment"
-        android:title="Configuration"
-        android:summary="Response Configuration" />
+        android:title="@string/ResponsePanel_Title"
+        android:summary="@string/ResponsePanel_Summary" />
     <header android:fragment="com.ridgway.smsautoresponder.SettingsPanelFragment"
-        android:title="Settings"
-        android:summary="SMS Settings" />
+        android:title="@string/SettingsPanel_Title"
+        android:summary="@string/SettingsPanel_Summary" />
     <header android:fragment="com.ridgway.smsautoresponder.DelayPanelFragment"
-        android:title="Delays"
-        android:summary="Delay Settings" />
+        android:title="@string/DelaysPanel_Title"
+        android:summary="@string/DelaysPanel_Summary" />
     <header android:fragment="com.ridgway.smsautoresponder.DisplayPanelFragment"
-        android:title="Display"
-        android:summary="Display Settings" />
+        android:title="@string/DisplayPanel_Title"
+        android:summary="@string/DisplayPanel_Summary" />
 </preference-headers>

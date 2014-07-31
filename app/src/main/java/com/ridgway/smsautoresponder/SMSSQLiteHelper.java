@@ -35,7 +35,10 @@ public class SMSSQLiteHelper extends SQLiteOpenHelper {
             + COLUMN_NUMBER + " text not null);";
 
 
-    private static final String QUERY_ALL_DESC = "SELECT * FROM " + TABLE_SMS
+    private static final String QUERY_ALL_DESC = "SELECT "
+            + COLUMN_ID + ", (datetime(" + COLUMN_DATE + ", 'localtime')) AS "
+            + COLUMN_DATE + ", "
+            + COLUMN_NUMBER + " FROM " + TABLE_SMS
             + " ORDER BY " + COLUMN_ID + " DESC";
 
 
