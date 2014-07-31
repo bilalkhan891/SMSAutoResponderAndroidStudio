@@ -476,13 +476,14 @@ public class MainActivity extends ActionBarActivity
         super.onStop();
         Log.d("SMSAutoResponder", "onStop().");
 
+        stopResponses();
+
         // cleanup the AlarmManager and Alarm Broadcast Receiver
         if(alarmMgr != null) {
             alarmMgr.cancel(pendingAlarmIntent);
             unregisterReceiver(AlarmReceiver);
         }
 
-        stopResponses();
 	}
 
     /**
@@ -922,6 +923,13 @@ public class MainActivity extends ActionBarActivity
         if(mbsilent_when_driving) {
             toggleRingerMode(true);
         }
+
+        // Start tracking the Google Play Services
+        // Activity Recognition Updates from the system
+        // We can use these to set the current activity
+        // for determining the response to be sent
+        // in reply to incoming text messages.
+        startActivityRecognitionUpdates();
     }
     
 
@@ -933,6 +941,10 @@ public class MainActivity extends ActionBarActivity
         if(mbsilent_when_driving) {
             toggleRingerMode(false);
         }
+
+        // Stop tracking the Activity Recognition updates
+        // from the Google Play Services location services.
+        stopActivityRecognitionUpdates();
     }
 
 
@@ -942,6 +954,8 @@ public class MainActivity extends ActionBarActivity
      * @param bSilent
      */
     private void toggleRingerMode(boolean bSilent){
+
+        Log.d("SMSAutoResponder", "toggleRingerMode" );
 
         int mode = AudioManager.RINGER_MODE_NORMAL;
         if(bSilent){
@@ -1121,6 +1135,7 @@ public class MainActivity extends ActionBarActivity
      * and update the listview to reflect the new data
      */
     private void clearResponseData(){
+        Log.d("SMSAutoResponder", "clearResponseData" );
         // clear the database
         db.deleteAllResponses();
         // update the listView
@@ -1136,6 +1151,8 @@ public class MainActivity extends ActionBarActivity
      * @return
      */
     private boolean servicesConnected(){
+
+        Log.d("SMSAutoResponder", "servicesConnected" );
 
         boolean bAvailable = false;
         Context context = getApplicationContext();
@@ -1228,6 +1245,8 @@ public class MainActivity extends ActionBarActivity
         // Set the request type to START
         mRequestType = REQUEST_TYPE.START;
 
+        Log.d("SMSAutoResponder", "startActivityRecognitionUpdates" );
+
         // Check for Google Play services
 
         if (!servicesConnected()) {
@@ -1252,6 +1271,9 @@ public class MainActivity extends ActionBarActivity
     }
 
     private void startActivityRecognitionClient(){
+
+        Log.d("SMSAutoResponder", "startActivityRecognitionClient" );
+
         /*
          * Instantiate a new activity recognition client. Since the
          * parent Activity implements the connection listener and
@@ -1280,6 +1302,9 @@ public class MainActivity extends ActionBarActivity
      *
      */
     public void stopActivityRecognitionUpdates() {
+
+        Log.d("SMSAutoResponder", "stopActivityRecognitionUpdates" );
+
         // Set the request type to STOP
         mRequestType = REQUEST_TYPE.STOP;
 
@@ -1314,6 +1339,7 @@ public class MainActivity extends ActionBarActivity
      * based on the preference setting
      */
     private void showResponsesList(){
+        Log.d("SMSAutoResponder", "showResponsesList" );
 
         // Get the views we want to hide/show
         TextView responseTitle = (TextView) findViewById(R.id.ListViewTitle);

@@ -107,7 +107,7 @@ public class DurationPickerDialog extends DialogFragment {
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
+                // Don't need to do anything here
             }
 
             public void onStopTrackingTouch(SeekBar seekBar) {
