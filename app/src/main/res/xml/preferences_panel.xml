@@ -21,27 +21,27 @@
 	    <CheckBoxPreference
 		    android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:key="ignore_short"
-            android:summary="Don't respond to short numbers, like 25423 (Alice Radio text number)"
-            android:title="Ignore short numbers"
+            android:key="@string/saved_ignore_short"
+            android:summary="@string/IgnoreShortCheck_Summary"
+            android:title="@string/IgnoreShortCheck_Title"
             android:defaultValue="true"
         />
 
         <CheckBoxPreference
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:key="enable_known_contacts"
-            android:summary="Only reply to numbers in your contacts list"
-            android:title="Only Respond to known contacts"
+            android:key="@string/saved_enable_known_contacts"
+            android:summary="@string/KnownContactsCheck_Summary"
+            android:title="@string/KnownContactsCheck_Title"
             android:defaultValue="false"
             />
 
         <CheckBoxPreference
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:key="clear_data_on_exit"
-            android:summary="Clear response and activity history on App exit."
-            android:title="Clear Data on exit"
+            android:key="@string/saved_clear_data_on_exit"
+            android:summary="@string/ClearDataCheck_Summary"
+            android:title="@string/ClearDataCheck_Title"
             android:defaultValue="false"
             />
     </PreferenceCategory>

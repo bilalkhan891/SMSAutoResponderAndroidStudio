@@ -7,8 +7,8 @@
     <PreferenceCategory
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:key="delay_options"
-        android:title="Delay Options" >
+        android:key="@string/saved_delay_options"
+        android:title="@string/delay_options_title" >
 
         <CheckBoxPreference
             android:layout_width="match_parent"
@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:key="repeat_delay"
             android:title="Repeat Delay"
-            android:summary="Define the delay between repeat messages to the same number"
+            android:summary="Define the delay between repeat messages to the same number (in  Minutes)"
             android:dialogTitle="Repeat Message Delay"
             android:dialogMessage="Number of minutes"
             android:defaultValue="5"

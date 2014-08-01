@@ -7,16 +7,16 @@
     <PreferenceCategory
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:key="display_options"
-        android:title="Display Options" >
+        android:key="@string/saved_display_options"
+        android:title="@string/display_options_title" >
 
         <CheckBoxPreference
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:defaultValue="true"
-            android:key="show_responses_on_main_activity"
-            android:summary="Display recent responses list on the main screen"
-            android:title="Display Responses"
+            android:key="@string/saved_show_responses_on_main_activity"
+            android:summary="@string/DisplayResponsesCheck_Summary"
+            android:title="@string/DisplayResponsesCheck_Title"
             />
 
     </PreferenceCategory>
