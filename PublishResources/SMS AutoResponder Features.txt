@@ -14,10 +14,17 @@ Enable option to only reply to known contacts.
 Added option to silence the phone ringer when in driving mode.
 
 Added a confirmation dialog to the Exit application menu item behavior.
+Additional confirmation dialogs for Clear Data menu items on Activities and Responses pages
 Disable the activity selection spinner when responses are active.
 Require long press to disable responses, to avoid accidentally disabling.
 
+Added a duration picker dialog for selecting the Alarm time interval for stopping responses.
+
 Added alarm support to automatically disable responses after a time interval specified when the responses are enabled. Default interval is configurable in the preferences.
+Added Activity Recognition Support, using Google Location Services. When this option is enabled, we use the recognized activity to determine the appropriate response
+        to send to an incoming SMS message.
+
+Added Text to Speech support. When selected, the TTS engine will be used to try to read aloud the incoming text message.
 
 
 PERMISSIONS
@@ -32,9 +39,9 @@ com.google.android.gms.permission.ACTIVITY_RECOGNITION -- so we can determine th
 Features 1.0
 ============
 
-Automatically Reply to incoming text messages with one of several preconfigured responses.
-Preconfigured options are saved in application preferences
-Preconfigured responses can be selected by activity before enabling
+Automatically Reply to incoming text messages with one of several pre-configured responses.
+Pre-configured options are saved in application preferences
+Pre-configured responses can be selected by activity before enabling
 Response count displayed in a system notification and popup message
 
 
@@ -62,6 +69,8 @@ Menus
 ActionBarActivity
 Preferences
 Send/Receive SMS Messages
+Notifications
+
 
 v1.5
 ----
@@ -72,5 +81,8 @@ Custom Number Picker dialog
 Custom Duration Picker dialog
 SQLite, ListView, and Adapters
 Enabled LogCat logging
+Text to Speech
+Activity Recognition using Google Location Services
+
 
 

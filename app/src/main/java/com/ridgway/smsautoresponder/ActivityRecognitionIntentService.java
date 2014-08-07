@@ -6,6 +6,7 @@ package com.ridgway.smsautoresponder;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
@@ -54,10 +55,22 @@ public class ActivityRecognitionIntentService extends IntentService {
              * Intent.
              */
 
-            // add a new activity entry to the database
+            // add a new activity entry to the database,
+            // so we can track the types of activities we're
+            // recognizing to determine how well this Google Services
+            // feature actually works.
             ActivityRecognitionSQLiteHelper dbActivities = new ActivityRecognitionSQLiteHelper(this);
             dbActivities.addActivity(activityName);
 
+            Log.d("ActivityRecognitionIntentService", "onHandleIntent: detected_activity: " + activityName);
+
+            // Broadcast the Activity back to the main activity
+            //--- send a broadcast intent to update the detected location aware activity in the main activity ---
+            Intent broadcastIntent = new Intent();
+            broadcastIntent.setAction("ACTIVITY_RECOGNITION_UPDATE_ACTION");
+            broadcastIntent.putExtra("detected_activity", activityName);
+
+            getApplicationContext().sendBroadcast(broadcastIntent);
 
         } else {
             /*
@@ -78,14 +91,17 @@ public class ActivityRecognitionIntentService extends IntentService {
                 return getString(R.string.activity_driving);
             case DetectedActivity.ON_BICYCLE:
                 return getString(R.string.activity_cycling);
+            case DetectedActivity.RUNNING:
+                return getString(R.string.activity_running);
+            case DetectedActivity.WALKING:
             case DetectedActivity.ON_FOOT:
                 return getString(R.string.activity_hiking);
             case DetectedActivity.STILL:
                 return getString(R.string.activity_stationary);
-            case DetectedActivity.UNKNOWN:
-                return getString(R.string.activity_unknown);
             case DetectedActivity.TILTING:
                 return getString(R.string.activity_tilting);
+            case DetectedActivity.UNKNOWN:
+                return getString(R.string.activity_unknown);
         }
         return getString(R.string.activity_unknown);
     }

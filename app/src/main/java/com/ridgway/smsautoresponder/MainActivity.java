@@ -142,10 +142,52 @@ public class MainActivity extends ActionBarActivity
     private boolean mTTS_available = false;
 
     /**
+     * Setup a Broadcast Receiver for incoming Location Awareness
+     * Activity Recognition state changes.
+     *
+     */
+    IntentFilter activityRecognitionIntentFilter;
+    private BroadcastReceiver activityRecognitionIntentReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String strNewActivity = intent.getExtras().getString("detected_activity");
+
+            if(strNewActivity.compareToIgnoreCase(getString(R.string.activity_unknown)) == 0 ||
+                    strNewActivity.compareToIgnoreCase(getString(R.string.activity_tilting)) == 0 ){
+                // If it's an unknown activity, we don't want to change anything.
+                // Ignore the update completely.
+                Log.d("activityRecognitionIntentReceiver", "onReceive: Detected " + strNewActivity + " activity. Ignore!" );
+                return;
+            }
+
+            if(strNewActivity.compareToIgnoreCase(getString(R.string.activity_stationary)) == 0){
+                Log.d("activityRecognitionIntentReceiver", "onReceive: Detected STILL activity. Switch to Do Not Disturb Msg" );
+                strNewActivity = getString(R.string.activity_donotdisturb);
+            }
+
+            // if it's not an unknown update and we're currently
+            // using location services to determine the activity,
+            // then go ahead and make the change.
+            if(mtrack_using_location_services) {
+                // Get the Spinner and update its value
+                Spinner spinActivity = (Spinner) findViewById(R.id.spinnerActivity);
+                SelectSpinnerItemByValue(spinActivity, strNewActivity);
+
+                // Update the current response.
+                updateResponse();
+            }
+        }
+    };
+
+
+
+    /**
 	 * Setup Broadcast Receiver for incoming SMS Messages
 	 */
-	IntentFilter intentFilter;
-    private BroadcastReceiver intentReceiver = new BroadcastReceiver(){
+	IntentFilter smsIntentFilter;
+    private BroadcastReceiver smsIntentReceiver = new BroadcastReceiver(){
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -328,20 +370,26 @@ public class MainActivity extends ActionBarActivity
         responsesSent = 0;
         startResponses();
 
+
         // Set an alarm to broadcast when we should automatically
         // disable the responses.
         long seekBarTimeInMinutes = durationBar.getProgress();
-        long now = System.currentTimeMillis();
-        long alarmTime = now + (seekBarTimeInMinutes * 60 * 1000);
 
-        // Setup the AlarmManager for auto disable of responses.
-        registerReceiver(AlarmReceiver, new IntentFilter("com.ridgway.smsautoresponder.stopresponses") );
-        pendingAlarmIntent = PendingIntent.getBroadcast( this, 0, new Intent("com.ridgway.smsautoresponder.stopresponses"),0 );
-        alarmMgr = (AlarmManager)(this.getSystemService( Context.ALARM_SERVICE ));
+        if(seekBarTimeInMinutes != durationBar.getMax()) {
+            long now = System.currentTimeMillis();
+            long alarmTime = now + (seekBarTimeInMinutes * 60 * 1000);
 
-        alarmMgr.set( AlarmManager.RTC, alarmTime, pendingAlarmIntent );
-        Log.d("SMSAutoResponder", "Alarm Set for: " + seekBarTimeInMinutes + " minutes" );
+            // Setup the AlarmManager for auto disable of responses.
+            registerReceiver(AlarmReceiver, new IntentFilter("com.ridgway.smsautoresponder.stopresponses"));
+            pendingAlarmIntent = PendingIntent.getBroadcast(this, 0, new Intent("com.ridgway.smsautoresponder.stopresponses"), 0);
+            alarmMgr = (AlarmManager) (this.getSystemService(Context.ALARM_SERVICE));
 
+            alarmMgr.set(AlarmManager.RTC, alarmTime, pendingAlarmIntent);
+            Log.d("SMSAutoResponder", "Alarm Set for: " + seekBarTimeInMinutes + " minutes");
+        }
+        else{
+            Log.d("SMSAutoResponder", "seekBar set for MAX. Don't set an Alarm. User must Manually disable!");
+        }
     }
 
     @Override
@@ -408,10 +456,13 @@ public class MainActivity extends ActionBarActivity
             startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
         }
 
+        //---intent to filter for activity recognition updates received---
+        activityRecognitionIntentFilter = new IntentFilter();
+        activityRecognitionIntentFilter.addAction("ACTIVITY_RECOGNITION_UPDATE_ACTION");
 
 		//---intent to filter for SMS messages received---
-		intentFilter = new IntentFilter();
-		intentFilter.addAction("SMS_RECEIVED_ACTION");
+        smsIntentFilter = new IntentFilter();
+        smsIntentFilter.addAction("SMS_RECEIVED_ACTION");
 		
 		ActivateButtons(receiverRegistered);
 
@@ -697,30 +748,34 @@ public class MainActivity extends ActionBarActivity
                 connectionResult.startResolutionForResult(
                         this,
                         CONNECTION_FAILURE_RESOLUTION_REQUEST);
-            } catch (IntentSender.SendIntentException e) {
+            }
+            catch (IntentSender.SendIntentException e) {
                 // Log the error
                 e.printStackTrace();
             }
             // If no resolution is available, display an error dialog
-        } else {
+        }
+        else {
             // Get the error code
             int errorCode = connectionResult.getErrorCode();
+
             // Get the error dialog from Google Play services
             Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
                     errorCode,
                     this,
                     CONNECTION_FAILURE_RESOLUTION_REQUEST);
+
             // If Google Play services can provide an error dialog
             if (errorDialog != null) {
+
                 // Create a new DialogFragment for the error dialog
-                ErrorDialogFragment errorFragment =
-                        new ErrorDialogFragment();
+                ErrorDialogFragment errorFragment = new ErrorDialogFragment();
+
                 // Set the dialog in the DialogFragment
                 errorFragment.setDialog(errorDialog);
+
                 // Show the error dialog in the DialogFragment
-                errorFragment.show(
-                        getSupportFragmentManager(),
-                        "Activity Recognition");
+                errorFragment.show( getSupportFragmentManager(),"Activity Recognition");
             }
         }
 
@@ -735,12 +790,12 @@ public class MainActivity extends ActionBarActivity
 	 */
 
     // Dialog for confirming Exit App
-    public static void showOkDialogWithText(Context context, String messageText)
+    public static void showOkDialogWithText(Context context, String messageText, String btnOKText)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(messageText);
         builder.setCancelable(true);
-        builder.setPositiveButton("OK", null);
+        builder.setPositiveButton(btnOKText, null);
         AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -863,7 +918,9 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
-    /** Called when the user clicks the Start button */
+    /**
+     * Called when the user clicks the Start button
+     */
     public void startResponses(View view) {
         // Show the duration picker dialog that allows
         // choosing an auto disable timespan.
@@ -872,7 +929,9 @@ public class MainActivity extends ActionBarActivity
 
     }
 
-    /** Called when the user clicks the Stop button */
+    /**
+     * Called when the user clicks the Stop button
+     */
     public void stopResponses(View view) {
         stopResponses();
     }
@@ -885,7 +944,7 @@ public class MainActivity extends ActionBarActivity
      * **************************************************
      */
 
-    // unresgister the broadcast receiver for SMS messages
+    // unregister the broadcast receiver for SMS messages
     // and disable notifications, when we're stopping responses.
     private void stopReceiver(){
 		// cancel the start
@@ -893,8 +952,9 @@ public class MainActivity extends ActionBarActivity
 		
         //---unregister the receiver---  
         if (receiverRegistered){
-	    	unregisterReceiver(intentReceiver);   
-	    	receiverRegistered = false;
+            unregisterReceiver(smsIntentReceiver);
+            unregisterReceiver(activityRecognitionIntentReceiver);
+            receiverRegistered = false;
         }
         
         // Cancel the notifications
@@ -923,7 +983,7 @@ public class MainActivity extends ActionBarActivity
 		String strActDisturb = getResources().getString(R.string.activity_donotdisturb);
 			
         // Get the selected value from the spinner
-		Spinner spinActivity = (Spinner) findViewById(R.id.spinner1);
+		Spinner spinActivity = (Spinner) findViewById(R.id.spinnerActivity);
 		String selectedActivity = spinActivity.getItemAtPosition(spinActivity.getSelectedItemPosition()).toString();
 
 			
@@ -973,8 +1033,10 @@ public class MainActivity extends ActionBarActivity
 
         mStart = true;
 
-        //---register the receiver---
-        registerReceiver(intentReceiver, intentFilter);
+        //--- register the receivers for incoming SMS messages and
+        // activity recognition from Location Services ---
+        registerReceiver(smsIntentReceiver, smsIntentFilter);
+        registerReceiver(activityRecognitionIntentReceiver, activityRecognitionIntentFilter);
         receiverRegistered = true;
 
         ActivateButtons(receiverRegistered);
@@ -995,7 +1057,7 @@ public class MainActivity extends ActionBarActivity
 
 
     /**
-     * Most places we call stopReponses we don't need to pass
+     * Most places we call stopResponses we don't need to pass
      * a value, so we setup this one to pass false.
      * Only from onStop() do we bypass this method and
      * use true.
@@ -1038,7 +1100,7 @@ public class MainActivity extends ActionBarActivity
             mode = AudioManager.RINGER_MODE_SILENT;
         }
         // Get the selected value from the spinner
-        Spinner spinActivity = (Spinner) findViewById(R.id.spinner1);
+        Spinner spinActivity = (Spinner) findViewById(R.id.spinnerActivity);
         String selectedActivity = spinActivity.getItemAtPosition(spinActivity.getSelectedItemPosition()).toString();
         String strActDrive = getResources().getString(R.string.activity_driving);
         if (selectedActivity.compareToIgnoreCase(strActDrive) == 0 ) {
@@ -1058,7 +1120,7 @@ public class MainActivity extends ActionBarActivity
     private void ActivateButtons(boolean bStarted){
     	    	
 		Button btnStart = (Button) findViewById(R.id.btnStart);
-		Spinner spinActivity = (Spinner) findViewById(R.id.spinner1);
+		Spinner spinActivity = (Spinner) findViewById(R.id.spinnerActivity);
 
 		// Update Button Text
 		if(bStarted){
@@ -1069,6 +1131,10 @@ public class MainActivity extends ActionBarActivity
 			btnStart.setText(getResources().getString(R.string.enable));
 			spinActivity.setEnabled(true);
 		}
+
+        if(mtrack_using_location_services){
+            spinActivity.setEnabled(false);
+        }
     }
 
 
@@ -1146,7 +1212,7 @@ public class MainActivity extends ActionBarActivity
 		String defaultActivity = getResources().getString(R.string.default_activity);
 		strDefaultActivity = sharedPref.getString(getString(R.string.saved_activity_option), defaultActivity);
 
-		Spinner spinActivity = (Spinner) findViewById(R.id.spinner1);
+		Spinner spinActivity = (Spinner) findViewById(R.id.spinnerActivity);
 		
 		// Setup an listener on the spinner, so we can update the response when the user makes
 		// a change to their selected activity.
@@ -1184,7 +1250,7 @@ public class MainActivity extends ActionBarActivity
     private void saveSpinner(){
 
         // Get the selected value from the spinner
-        Spinner spinActivity = (Spinner) findViewById(R.id.spinner1);
+        Spinner spinActivity = (Spinner) findViewById(R.id.spinnerActivity);
         String selectedActivity = spinActivity.getItemAtPosition(spinActivity.getSelectedItemPosition()).toString();
 
         // Get a handle to the shared preferences and an editor, so we can update them

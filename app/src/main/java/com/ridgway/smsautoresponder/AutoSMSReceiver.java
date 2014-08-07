@@ -30,7 +30,6 @@ public class AutoSMSReceiver extends BroadcastReceiver {
             broadcastIntent.putExtra("sms_number", sender);
             broadcastIntent.putExtra("sms_msg", msg);
 
-
             context.sendBroadcast(broadcastIntent);
 		}
 	}

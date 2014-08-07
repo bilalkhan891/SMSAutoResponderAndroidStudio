@@ -10,12 +10,23 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/textDescription"
+        android:text="@string/disable_responses_description"
+        android:paddingLeft="20dp"
+        android:paddingTop="5dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="10dp"
+        android:gravity="center_horizontal" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/textDuration"
         android:text="XX minutes"
         android:paddingLeft="20dp"
         android:paddingTop="10dp"
         android:paddingRight="20dp"
-        android:paddingBottom="10dp"
+        android:paddingBottom="5dp"
         android:textStyle="bold"
         android:gravity="center_horizontal" />
 
@@ -25,7 +36,7 @@
         android:id="@+id/textTimeDisable"
         android:text="xx:yy PM"
         android:paddingLeft="20dp"
-        android:paddingTop="10dp"
+        android:paddingTop="5dp"
         android:paddingRight="20dp"
         android:paddingBottom="10dp"
         android:textStyle="bold"

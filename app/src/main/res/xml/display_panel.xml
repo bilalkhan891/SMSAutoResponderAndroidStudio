@@ -21,21 +21,5 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:key="@string/saved_tracking_options"
-        android:title="@string/tracking_options_title" >
-
-        <CheckBoxPreference
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:defaultValue="true"
-            android:key="@string/saved_track_using_location_services"
-            android:summary="@string/LocationServicesCheck_Summary"
-            android:title="@string/LocationServicesCheck_Title"
-            />
-
-    </PreferenceCategory>
 
 </PreferenceScreen>

@@ -91,7 +91,7 @@
     <string name="response_hint">Enter a Response</string>
     <string name="settings_title">Settings</string>
     <string name="configuration_title">Configuration</string>
-    <string name="duration_picker_title">Automatically disable responses after...</string>
+    <string name="duration_picker_title">Disable responses after...</string>
 
     <string name="auto_disable_response_msg">Timer Ended! Automatically Disabling Responses</string>
 
@@ -100,5 +100,9 @@
     <string name="st_time">At</string>
     <string name="list_header_date">Date</string>
     <string name="list_header_number">Number</string>
+
+    <string name="disable_responses_description">The responses will be automatically disabled after the selected duration.</string>
+    <string name="disable_responses_never">Never</string>
+    <string name="disable_responses_apocalypse">At the apocalypse!</string>
 
 </resources>

@@ -125,10 +125,16 @@ public class DurationPickerDialog extends DialogFragment {
                 TextView delayUntilText = (TextView) view.findViewById(R.id.textTimeDisable);
 
                 String dealyHrsMins = ConvertMinsToHrsMins(progress);
-                delayText.setText(dealyHrsMins);
-
-
                 String dealyTimeStop = ConvertMinsToStopTime(progress);
+
+                if(seekBar.getMax() == progress){
+                    // We're at the Max, so we want to NOT setup an alarm
+                    // So, let's change the display text to indicate
+                    dealyHrsMins = getResources().getString(R.string.disable_responses_never);
+                    dealyTimeStop = getResources().getString(R.string.disable_responses_apocalypse);
+                }
+
+                delayText.setText(dealyHrsMins);
                 delayUntilText.setText(dealyTimeStop);
             }
 

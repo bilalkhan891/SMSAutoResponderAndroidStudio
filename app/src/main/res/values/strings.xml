@@ -107,6 +107,7 @@
     <string name="auto_disable_response_msg">Timer Ended! Automatically Disabling Responses</string>
     <string name="mins">Mins</string>
     <string name="hrs">Hrs</string>
+    <string name="dlg_ok">OK</string>
     <string name="st_time">At</string>
     <string name="list_header_date">Date</string>
     <string name="list_header_number">Number</string>
@@ -139,4 +140,8 @@
     <string name="LocationServicesCheck_Summary">Determine current activity using Google Location Services</string>
     <string name="TTSCheck_Title">Read Incoming SMS</string>
     <string name="TTSCheck_Summary">Enable Read Incoming SMS messages using text to speech engine</string>
+
+    <string name="disable_responses_description">The responses will be automatically disabled after the selected duration.</string>
+    <string name="disable_responses_never">Never</string>
+    <string name="disable_responses_apocalypse">At the apocalypse!</string>
 </resources>

@@ -53,7 +53,7 @@
                 android:textStyle="bold" />
 
             <Spinner
-                android:id="@+id/spinner1"
+                android:id="@+id/spinnerActivity"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
