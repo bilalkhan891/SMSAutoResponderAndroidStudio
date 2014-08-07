@@ -5,9 +5,20 @@
     android:layout_gravity="center" android:orientation="vertical"
     android:gravity="center_vertical|center_horizontal">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/num_picker_title"
+        android:layout_weight="1"
+        android:text="Number of Minutes"
+        android:textStyle="bold"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        />
 
     <NumberPicker
         android:id="@+id/numberPicker1"
+        android:layout_weight="5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal" />

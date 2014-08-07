@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:key="auto_disable_response_delay"
             android:title="Disable Responses Delay"
-            android:summary="Define the default delay before automatically disabling responses"
+            android:summary="Define the default delay before automatically disabling responses (in  Minutes)"
             android:dialogTitle="Disable Responses Delay"
             android:dialogMessage="Number of minutes"
             android:defaultValue="60"

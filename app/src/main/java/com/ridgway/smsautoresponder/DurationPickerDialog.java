@@ -14,6 +14,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +33,11 @@ public class DurationPickerDialog extends DialogFragment {
 
     // Toast to show debug messages
     public void showDebugToast(CharSequence txt){
+
+        if(mDebug == false){
+            // Get out of here, if we're not debugging.
+            return;
+        }
 
         Toast toastDebug = Toast.makeText(mContext, txt, Toast.LENGTH_LONG);
         toastDebug.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
@@ -86,9 +92,28 @@ public class DurationPickerDialog extends DialogFragment {
         // Pass null as the parent view because its going in the dialog layout
         View view = inflater.inflate(R.layout.fragment_duration_picker_dialog, null);
         builder.setView(view);
-        builder.setTitle(R.string.duration_picker_title );
+        builder.setTitle(R.string.duration_picker_title);
 
         final SeekBar durationBar = (SeekBar) view.findViewById(R.id.seekBar);
+        final Button btnMinus = (Button)view.findViewById(R.id.buttonMinus);
+        final Button btnPlus = (Button)view.findViewById(R.id.buttonPlus);
+
+        btnMinus.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // Decrease duration by 10% of Max value
+                durationBar.setProgress(durationBar.getProgress() - durationBar.getMax()/10);
+            }
+        });
+        btnPlus.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // Increase duration by 10% of Max value
+                durationBar.setProgress(durationBar.getProgress() + durationBar.getMax()/10);
+            }
+        });
 
         durationBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progressChanged = 0;

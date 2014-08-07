@@ -72,6 +72,9 @@
     <string name="saved_sms_options">sms_options</string>
     <string name="saved_display_options">display_options</string>
     <string name="saved_delay_options">delay_options</string>
+    <string name="saved_tracking_options">tracking_options</string>
+    <string name="saved_track_using_location_services">track_using_location_services</string>
+    <string name="saved_enable_tts_read_sms">enable_tts_read_sms</string>
     <string name="longclick_toast">A long click will disable responses.</string>
     <string name="short_ignore_toast">Ignoring short number</string>
     <string name="unknown_ignore_toast">Ignoring text from unknown number</string>
@@ -100,7 +103,7 @@
     <string name="settings_title">Settings</string>
     <string name="configuration_title">Configuration</string>
     <string name="preference_file_key">com.ridgway.smsautoresponder.PREFERENCE_FILE_KEY</string>
-    <string name="duration_picker_title">Automatically disable responses after...</string>
+    <string name="duration_picker_title">Disable responses after...</string>
     <string name="auto_disable_response_msg">Timer Ended! Automatically Disabling Responses</string>
     <string name="mins">Mins</string>
     <string name="hrs">Hrs</string>
@@ -131,4 +134,9 @@
     <string name="ClearDataCheck_Summary">Clear response and activity history on App exit.</string>
     <string name="DisplayResponsesCheck_Title">Display Responses</string>
     <string name="DisplayResponsesCheck_Summary">Display recent responses list on the main screen</string>
+    <string name="tracking_options_title">Location Tracking Options</string>
+    <string name="LocationServicesCheck_Title">Tracking Options</string>
+    <string name="LocationServicesCheck_Summary">Determine current activity using Google Location Services</string>
+    <string name="TTSCheck_Title">Read Incoming SMS</string>
+    <string name="TTSCheck_Summary">Enable Read Incoming SMS messages using text to speech engine</string>
 </resources>

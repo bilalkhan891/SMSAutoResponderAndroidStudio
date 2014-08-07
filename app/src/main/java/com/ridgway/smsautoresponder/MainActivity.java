@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -54,13 +55,15 @@ import com.google.android.gms.location.ActivityRecognitionClient;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends ActionBarActivity
                         implements DurationPickerDialog.DurationPickerDialogListener,
                                     GooglePlayServicesClient.ConnectionCallbacks,
-                                    GooglePlayServicesClient.OnConnectionFailedListener {
+                                    GooglePlayServicesClient.OnConnectionFailedListener,
+                                    TextToSpeech.OnInitListener {
 
 	private static final int mNotificationId = 42; // Responses Sent Notification Id
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -81,6 +84,7 @@ public class MainActivity extends ActionBarActivity
     public static final int DETECTION_INTERVAL_SECONDS = 20;
     public static final int DETECTION_INTERVAL_MILLISECONDS =
             MILLISECONDS_PER_SECOND * DETECTION_INTERVAL_SECONDS;
+
 
     // Classify the type of Activity Recognition request we're operating on
     public enum REQUEST_TYPE {START, STOP}
@@ -120,7 +124,8 @@ public class MainActivity extends ActionBarActivity
     private boolean mbsilent_when_driving = true; // do we silence the phone ringer in driving mode
     private boolean mclear_data_on_exit = false; // clear the response data history on app exit
     private boolean mshow_responses_on_main_activity = true; // show the recent responses on the main activity screen
-
+    private boolean mtrack_using_location_services = false; //use location services to determine current activity
+    private boolean menable_tts_read_sms = false; //read incoming text messages using text-to-speech
     private boolean receiverRegistered = false; // Is our broadcast receiver registered
     private boolean googlePlayAvailable = false; // Are Google Play services available on the device
     private boolean googleDialogShown = false; // Have we already shown the Missing Google Play dialog
@@ -132,6 +137,10 @@ public class MainActivity extends ActionBarActivity
     private ListView listView; // Main activity ListView to display recent responses
     private SMSCursorAdapter smsAdapter; // Adapter between the database and ListView
 
+    private TextToSpeech mTts; // Instance of Text to Speech engine
+    private static final int MY_DATA_CHECK_CODE = 1701;
+    private boolean mTTS_available = false;
+
     /**
 	 * Setup Broadcast Receiver for incoming SMS Messages
 	 */
@@ -141,7 +150,9 @@ public class MainActivity extends ActionBarActivity
         @Override
         public void onReceive(Context context, Intent intent) {
         	String smsNumber = intent.getExtras().getString("sms_number");
+            String smsMsg = intent.getExtras().getString("sms_msg");
             Log.d("SMSAutoResponder", "SMS Received from: " + smsNumber );
+            Log.d("SMSAutoResponder", "SMS Message: " + smsMsg );
 
             boolean bSendResponse = true;
             String msg = returnMessage;
@@ -262,6 +273,12 @@ public class MainActivity extends ActionBarActivity
                 createNotification();
 	            toastResponseSent();
         	}
+
+            // if Read SMS is enabled, then try to read back the incoming message
+            if(menable_tts_read_sms && mTTS_available){
+                mTts.speak("Message from: " + smsNumber, TextToSpeech.QUEUE_ADD, null);
+                mTts.speak(smsMsg, TextToSpeech.QUEUE_ADD, null);
+            }
         }
     };
 
@@ -384,7 +401,14 @@ public class MainActivity extends ActionBarActivity
 
         // Get Preferences
 		getSavedPrefs();
-		
+
+        // If Text to Speech is enabled, startup the engine
+        if(menable_tts_read_sms) {
+            Intent checkIntent = new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+            startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
+        }
+
+
 		//---intent to filter for SMS messages received---
 		intentFilter = new IntentFilter();
 		intentFilter.addAction("SMS_RECEIVED_ACTION");
@@ -438,6 +462,20 @@ public class MainActivity extends ActionBarActivity
 
 	}
 
+
+    /**
+     * Handle Text to Speech OnInit.
+     * @param status
+     */
+    @Override
+    public void onInit(int status) {
+        if(status == TextToSpeech.SUCCESS){
+            mTTS_available = true;
+        }
+        else{
+            mTTS_available = false;
+        }
+    }
 
 
     /**
@@ -1136,6 +1174,8 @@ public class MainActivity extends ActionBarActivity
         mbsilent_when_driving = settingsPrefs.getBoolean(getString(R.string.saved_silent_when_driving), false);
         mclear_data_on_exit = settingsPrefs.getBoolean(getString(R.string.saved_clear_data_on_exit), false);
         mshow_responses_on_main_activity = settingsPrefs.getBoolean(getString(R.string.saved_show_responses_on_main_activity), true);
+        mtrack_using_location_services = settingsPrefs.getBoolean(getString(R.string.saved_track_using_location_services), false);
+        menable_tts_read_sms = settingsPrefs.getBoolean(getString(R.string.saved_enable_tts_read_sms), false);
     }
 
     /**
@@ -1252,6 +1292,9 @@ public class MainActivity extends ActionBarActivity
     /**
      * Handle results returned to the FragmentActivity
      * by Google Play services
+     *
+     * Respond to startActivityForResult() call to setup Text to Speech
+     *
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -1271,7 +1314,19 @@ public class MainActivity extends ActionBarActivity
                      servicesConnected();
                      break;
                 }
+
+            case MY_DATA_CHECK_CODE:
+                if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
+                    // success, create the TTS instance
+                    mTts = new TextToSpeech(getApplicationContext(), this);
+                } else {
+                    // missing data, install it
+                    Intent installIntent = new Intent();
+                    installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                    startActivity(installIntent);
+                }
         }
+
     }
 
     /**

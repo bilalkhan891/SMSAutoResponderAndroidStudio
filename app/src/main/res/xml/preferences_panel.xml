@@ -44,6 +44,15 @@
             android:title="@string/ClearDataCheck_Title"
             android:defaultValue="false"
             />
+
+        <CheckBoxPreference
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:key="@string/saved_enable_tts_read_sms"
+            android:summary="@string/TTSCheck_Summary"
+            android:title="@string/TTSCheck_Title"
+            android:defaultValue="false"
+            />
     </PreferenceCategory>
 
 	

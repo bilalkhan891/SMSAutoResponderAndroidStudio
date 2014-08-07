@@ -2,21 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="center" android:orientation="vertical"
+    android:layout_gravity="center"
+    android:orientation="vertical"
     android:gravity="center_vertical|center_horizontal" >
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/textTitle"
-        android:text="@string/duration_picker_title"
-        android:paddingLeft="20dp"
-        android:paddingTop="10dp"
-        android:paddingRight="20dp"
-        android:paddingBottom="10dp"
-        android:textSize="@dimen/text_size_label"
-        android:textStyle="bold"
-        android:gravity="center_horizontal" />
 
     <TextView
         android:layout_width="match_parent"
@@ -42,15 +31,35 @@
         android:textStyle="bold"
         android:gravity="center_horizontal" />
 
-    <SeekBar
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/seekBar"
-        android:layout_gravity="center"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="10dp"
-        android:max="@integer/response_disable_delay_max" />
+        android:layout_height="match_parent"
+        android:orientation="horizontal" >
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:layout_weight="1"
+            android:id="@+id/buttonMinus" />
 
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekBar"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="8"
+            android:max="@integer/response_disable_delay_max" />
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+"
+            android:layout_weight="1"
+            android:id="@+id/buttonPlus" />
+    </LinearLayout>
 </LinearLayout>

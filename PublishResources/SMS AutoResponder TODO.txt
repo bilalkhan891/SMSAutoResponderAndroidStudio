@@ -15,7 +15,7 @@ Add stop button to notification -- research custom notification layouts.
 Location services (Activity Recognition)
 Setting to enable/disable location services use. Disable/Hide selections on main screen for activity and current response
 
-
+Use Text-to-Speech to enable read my incoming messages option.
 
 Custom checkboxes -- one type for enable/disable, and another for settings page, if needed.
 
