@@ -385,7 +385,7 @@ public class MainActivity extends ActionBarActivity
             pendingAlarmIntent = PendingIntent.getBroadcast(this, 0, new Intent("com.ridgway.smsautoresponder.stopresponses"), 0);
             alarmMgr = (AlarmManager) (this.getSystemService(Context.ALARM_SERVICE));
 
-            alarmMgr.set(AlarmManager.RTC, alarmTime, pendingAlarmIntent);
+            alarmMgr.set(AlarmManager.RTC_WAKEUP, alarmTime, pendingAlarmIntent);
             Log.d("SMSAutoResponder", "Alarm Set for: " + seekBarTimeInMinutes + " minutes");
         }
         else{
