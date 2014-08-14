@@ -97,7 +97,7 @@ public class SMSSQLiteHelper extends SQLiteOpenHelper {
         List<Integer> responses = new LinkedList<Integer>();
 
         // get reference to writable DB
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(QUERY_ALL_DESC, null);
 
         // go over each row, grab the id column value and add it to list
@@ -121,7 +121,7 @@ public class SMSSQLiteHelper extends SQLiteOpenHelper {
 
         Log.d("SMSSQLiteHelper", "getAllData SQL: " + QUERY_ALL_DESC);
 
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery(QUERY_ALL_DESC, null);
     }
 
@@ -148,14 +148,20 @@ public class SMSSQLiteHelper extends SQLiteOpenHelper {
     public long getLatestResponseTime(String number){
         long responseDateMillis = 0;
 
-        String QUERY_LATEST_RESPONSE_BY_NUMBER = "SELECT _id, (strftime('%s', date) * 1000) AS millis FROM " + TABLE_SMS
-                + " WHERE " + COLUMN_NUMBER + " = " + number
+        String QUERY_LATEST_RESPONSE_BY_NUMBER = "SELECT " + COLUMN_ID
+                + ", (strftime('%s', " + COLUMN_DATE + ") * 1000) AS " + COLUMN_DATE + ", "
+                + COLUMN_NUMBER + " FROM " + TABLE_SMS
+                + " WHERE " + COLUMN_NUMBER + "='" + number + "'"
                 + " ORDER BY " + COLUMN_ID + " DESC";
 
         Log.d("SMSSQLiteHelper: getLatestResponseTime", "Query String: " + QUERY_LATEST_RESPONSE_BY_NUMBER);
 
-        // get reference to writable DB
-        SQLiteDatabase db = this.getWritableDatabase();
+        // How many responses do we have?
+        int count = getResponseCount(number);
+        Log.d("SMSSQLiteHelper: getLatestResponseTime", "Response Count: " + count);
+
+        // get reference to readable DB
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(QUERY_LATEST_RESPONSE_BY_NUMBER, null);
         if(cursor == null || cursor.getCount() == 0){
             Log.d("SMSSQLiteHelper: getLatestResponseTime", "No previous response sent to: " + number);
@@ -164,11 +170,30 @@ public class SMSSQLiteHelper extends SQLiteOpenHelper {
             // Move to the first returned response, which
             // is the most recent one in the database.
             cursor.moveToFirst();
-            responseDateMillis = cursor.getLong(cursor.getColumnIndexOrThrow("millis"));
+            responseDateMillis = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_DATE));
             Log.d("SMSSQLiteHelper: getLatestResponseTime", "Found a previous response to: " + number);
         }
+        cursor.close();
+        db.close();
 
         return responseDateMillis;
 
+    }
+
+    public int getResponseCount(String number) {
+        String countQuery = "SELECT  * FROM " + TABLE_SMS
+                + " WHERE " + COLUMN_NUMBER + "='" + number + "'";
+
+        Log.d("SMSSQLiteHelper: getResponseCount", "Query String: " + countQuery);
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+
+        int count = cursor.getCount();
+        cursor.close();
+        db.close();
+
+        // return count
+        return count;
     }
 }
