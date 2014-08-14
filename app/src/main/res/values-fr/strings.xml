@@ -29,12 +29,25 @@
     <string name="activity_running">Courait</string>
     <string name="activity_hiking">Marche</string>
     <string name="activity_donotdisturb">Ne pas déranger</string>
+    <string name="activity_stationary">still</string>
+    <string name="activity_unknown">unknown</string>
+    <string name="activity_tilting">tilting</string>
 
     <string name="driving_title">Driving Response</string>
     <string name="biking_title">Cycling Response</string>
     <string name="running_title">Running Response</string>
     <string name="hiking_title">Hiking Response</string>
     <string name="donot_disturb_title">Do Not Disturb Response</string>
+    <string name="response_options_title">Response Options</string>
+    <string name="sms_options_title">SMS Options</string>
+    <string name="display_options_title">Display Options</string>
+    <string name="delay_options_title">Delay Options</string>
+    <string name="driving_summary">Response sent while driving</string>
+    <string name="biking_summary">Response sent while cycling</string>
+    <string name="running_summary">Response sent while running</string>
+    <string name="hiking_summary">Response sent while hiking</string>
+    <string name="donot_disturb_summary">Response sent while set to Do Not Disturb</string>
+
 
     <string-array name="activity_array">
         <item>@string/activity_driving</item>
@@ -75,34 +88,68 @@
     <string name="response_toast">Response Sent</string>
     <string name="acknowledgeexit_title">Quitter</string>
     <string name="acknowledgeexit_msg">Etes-vous sûr de vouloir quitter?</string>
+    <string name="acknowledge_delete_responses_title">Effacer des réponses</string>
+    <string name="acknowledge_delete_responses_msg">Êtes-vous sûr de vouloir effacer toutes les données de réponse?</string>
+    <string name="acknowledge_delete_activities_title">Effacer des activités</string>
+    <string name="acknowledge_delete_activities_msg">Êtes-vous sûr de vouloir effacer toutes les données sur les activités?</string>
     <string name="dlg_yes">Oui</string>
     <string name="dlg_cancel">Annuler</string>
     <string name="notification_title">SMS Répondeur Automatique</string>
     <string name="notifications_sent">@string/responses_sent_prompt</string>
     <string name="response_sentby"> -- Envoyé avec SMS Répondeur Automatique</string>
-    <string name="dialog_auto_disable">Automatic Disable Delay</string>
+    <string name="dialog_auto_disable">Automatique Désactiver retard</string>
 
-    <string name="problem_dlg_msg">Something went wrong. Please make sure that you have the Play Store installed and that you are connected to the internet. Contact developer with details if this persists.</string>
+    <string name="problem_dlg_msg">Quelque chose s'est mal passé. S'il vous plaît assurez que vous avez le Play Store installé et que vous êtes connecté à Internet. Contactez-développeur avec des détails si cela persiste.</string>
 
 
-    <string name="listview_title">Recent Responses:</string>
-    <string name="title_activity_settings">Customize</string>
-    <string name="title_activity_panel_settings">Settings</string>
-    <string name="response_hint">Enter a Response</string>
-    <string name="settings_title">Settings</string>
+    <string name="listview_title">Réponses récentes:</string>
+    <string name="title_activity_settings">Personnaliser</string>
+    <string name="title_activity_panel_settings">Paramètres</string>
+    <string name="response_hint">Saisissez une réponse</string>
+    <string name="settings_title">Paramètres</string>
     <string name="configuration_title">Configuration</string>
     <string name="duration_picker_title">Disable responses after...</string>
 
-    <string name="auto_disable_response_msg">Timer Ended! Automatically Disabling Responses</string>
+    <string name="auto_disable_response_msg">La minuterie est terminé! Les réponses ont été désactivés</string>
 
-    <string name="mins">Mins</string>
-    <string name="hrs">Hrs</string>
-    <string name="st_time">At</string>
+    <string name="mins">Minutes</string>
+    <string name="hrs">Heures</string>
+    <string name="st_time">à</string>
     <string name="list_header_date">Date</string>
-    <string name="list_header_number">Number</string>
+    <string name="list_header_number">Nombre</string>
+    <string name="title_activity_activity_recognition_list">Liste des activités reconnues</string>
+    <string name="title_activity_smsresponse_list">Liste des réponses</string>
+    <string name="activity_listview_title">Liste des activités récemment reconnus</string>
+    <string name="list_header_activity">Activité</string>
 
-    <string name="disable_responses_description">The responses will be automatically disabled after the selected duration.</string>
-    <string name="disable_responses_never">Never</string>
-    <string name="disable_responses_apocalypse">At the apocalypse!</string>
+    <string name="ResponsePanel_Title">Configuration</string>
+    <string name="ResponsePanel_Summary">Personnalisez réponses</string>
+    <string name="SettingsPanel_Title">Paramètres</string>
+    <string name="SettingsPanel_Summary">SMS Paramètres</string>
+    <string name="DelaysPanel_Title">Retards</string>
+    <string name="DelaysPanel_Summary">Message et désactiver des paramètres délai d'auto</string>
+    <string name="DisplayPanel_Title">Affichage</string>
+    <string name="DisplayPanel_Summary">Paramètres d'affichage</string>
+
+    <string name="SilentCheck_Title">Silence Téléphone</string>
+    <string name="SilentCheck_Summary">Désactivation de la sonnerie de téléphone en mode conduite</string>
+    <string name="IgnoreShortCheck_Title">Ignorer les numéros courts</string>
+    <string name="IgnoreShortCheck_Summary">Don\'t respond to short numbers, like 25423 (Alice Radio text number)</string>
+    <string name="KnownContactsCheck_Title">Seulement Répondre aux contacts connus</string>
+    <string name="KnownContactsCheck_Summary">Que répondre à des numéros dans votre liste de contacts</string>
+    <string name="ClearDataCheck_Title">Clear Data on exit</string>
+    <string name="ClearDataCheck_Summary">Clear response and activity history on App exit.</string>
+    <string name="DisplayResponsesCheck_Title">Display Responses</string>
+    <string name="DisplayResponsesCheck_Summary">Afficher la liste des réponses récentes sur l'écran principal</string>
+    <string name="tracking_options_title">Location Tracking Options</string>
+    <string name="LocationServicesCheck_Title">Tracking Options</string>
+    <string name="LocationServicesCheck_Summary">Déterminez votre activité actuelle en utilisant Google Location Services</string>
+    <string name="TTSCheck_Title">Read Incoming SMS</string>
+    <string name="TTSCheck_Summary">Activer les messages entrants Lire SMS en utilisant le texte moteur de synthèse vocale</string>
+
+
+    <string name="disable_responses_description">Les réponses seront automatiquement désactivées après la durée choisie.</string>
+    <string name="disable_responses_never">Jamais</string>
+    <string name="disable_responses_apocalypse">À l'apocalypse!</string>
 
 </resources>
