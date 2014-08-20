@@ -56,6 +56,15 @@
         <CheckBoxPreference
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:key="@string/saved_enable_response_to_calls"
+            android:summary="@string/InComingCallsCheck_Summary"
+            android:title="@string/InComingCallsCheck_Title"
+            android:defaultValue="false"
+            />
+
+        <CheckBoxPreference
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:key="@string/saved_clear_data_on_exit"
             android:summary="@string/ClearDataCheck_Summary"
             android:title="@string/ClearDataCheck_Title"

@@ -182,6 +182,48 @@ public class MainActivity extends ActionBarActivity
     };
 
 
+    /**
+     * Setup Broadcast Receiver for incoming Phone Calls
+     */
+    IntentFilter phoneIntentFilter;
+    private BroadcastReceiver phoneIntentReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String phoneNumber = intent.getExtras().getString("sms_number");
+            Log.d("SMSAutoResponder", "Call Received from: " + phoneNumber);
+
+            boolean bSendResponse = true;
+            String msg = returnMessage;
+            if(mFreeVersion){
+                // Add extra text to outgoing messages
+                // to advertise the App in the Free Version
+                msg = returnMessage + getString(R.string.response_sentby);
+            }
+
+            // If we're still OK to send the response, check if the number is
+            // from a contact in our address book.
+            if(bSendResponse && mbenable_known_contacts) {
+                bSendResponse = isValidContactNumber(phoneNumber);
+            }
+
+            // If we're still OK to send the response, check
+            // if we have an option selected to limit the response frequency,
+            // let's get the most recent response for the current number and if it's
+            // older than the cutoff, we can send the response, otherwise we'll ignore
+            // the incoming response
+            if(bSendResponse && mbenable_delay){
+                bSendResponse = isLastResponseOldEnough(phoneNumber);
+            }
+
+            // If we have the right configuration,
+            // Send a response to the incoming message.
+            if(bSendResponse){
+                sendResponseMessage(phoneNumber);
+            }
+
+        }
+    };
 
     /**
 	 * Setup Broadcast Receiver for incoming SMS Messages
@@ -197,12 +239,6 @@ public class MainActivity extends ActionBarActivity
             Log.d("SMSAutoResponder", "SMS Message: " + smsMsg );
 
             boolean bSendResponse = true;
-            String msg = returnMessage;
-            if(mFreeVersion){
-                // Add extra text to outgoing messages
-                // to advertise the App in the Free Version
-                msg = returnMessage + getString(R.string.response_sentby);
-            }
 
             // Check to see if we're ignoring short numbers and
             // compare the length of the incoming message number
@@ -226,44 +262,7 @@ public class MainActivity extends ActionBarActivity
             // If we're still OK to send the response, check if the number is
             // from a contact in our address book.
             if(bSendResponse && mbenable_known_contacts){
-                // validate incoming message number is in
-                // the contacts list.
-                boolean bFound = false;
-                Uri lookupUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-                        Uri.encode(smsNumber));
-
-                ContentResolver localContentResolver = getApplicationContext().getContentResolver();
-                Cursor contactLookupCursor =
-                        localContentResolver.query(
-                                lookupUri,
-                                new String[] {ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup._ID},
-                                null,
-                                null,
-                                null);
-                try {
-                    while(contactLookupCursor.moveToNext()){
-                        String contactName = contactLookupCursor.getString(contactLookupCursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup.DISPLAY_NAME));
-                        String contactId = contactLookupCursor.getString(contactLookupCursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup._ID));
-                        Log.d("SMSAutoResponder", "contactMatch name: " + contactName);
-                        Log.d("SMSAutoResponder", "contactMatch id: " + contactId);
-                        bFound = true;
-
-                    }
-                } finally {
-                    contactLookupCursor.close();
-                }
-
-                if(!bFound){
-                    context = getApplicationContext();
-                    CharSequence text = getResources().getString(R.string.unknown_ignore_toast);
-                    int duration = Toast.LENGTH_SHORT;
-                    Toast toastIgnoreUnknown = Toast.makeText(context, text, duration);
-                    toastIgnoreUnknown.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    toastIgnoreUnknown.show();
-
-                    // Flag that we're not sending a response
-                    bSendResponse = false;
-                }
+               bSendResponse = isValidContactNumber(smsNumber);
             }
 
 
@@ -273,47 +272,13 @@ public class MainActivity extends ActionBarActivity
             // older than the cutoff, we can send the response, otherwise we'll ignore
             // the incoming response
             if(bSendResponse && mbenable_delay){
-                long recentMillis = db.getLatestResponseTime(smsNumber);
-                if(recentMillis == 0){
-                    Log.d("SMSAutoResponder", "No Recent response for number: " + smsNumber);
-                }
-                else{
-                    long nowMillis = System.currentTimeMillis();
-
-                    Date now = new Date(nowMillis);
-                    Date smsDate = new Date(recentMillis);
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SS");
-                    String strDate = sdf.format(smsDate);
-                    Log.d("SMSAutoResponder", "Most Recent response for number: " + smsNumber + " is " + strDate);
-                    Log.d("SMSAutoResponser", "Repeat Delay set to " + mrepeat_delay + " minutes");
-
-                    long diff = now.getTime() - smsDate.getTime();
-                    long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
-                    Log.d("SMSAutoResponser", "Difference between now and recent response: " + minutes + " minutes");
-
-                    if( minutes < mrepeat_delay){
-                        // Flag that we're not sending a response
-                        bSendResponse = false;
-                        Log.d("SMSAutoResponser", "Recent Response too recent. Not responding again so soon.");
-                    }
-
-                }
+                bSendResponse = isLastResponseOldEnough(smsNumber);
             }
 
             // If we have the right configuration,
             // Send a response to the incoming message.
             if(bSendResponse){
-	        	// Return a response if sms number isn't one of those special short numbers
-	            SmsManager smsManager = SmsManager.getDefault();
-	            smsManager.sendTextMessage(smsNumber, null, msg, null, null);        
-	            responsesSent++;
-
-                // add to the database
-                db.addResponse(smsNumber);
-                smsAdapter.changeCursor(db.getAllData());
-
-                createNotification();
-	            toastResponseSent();
+                sendResponseMessage(smsNumber);
         	}
 
             // if Read SMS is enabled, then try to read back the incoming message
@@ -324,6 +289,124 @@ public class MainActivity extends ActionBarActivity
             }
         }
     };
+
+    /**
+     * Send the response text to the number we're receiving from
+     *
+     * @param smsNumber
+     */
+    private void sendResponseMessage(String smsNumber){
+        String msg = returnMessage;
+        if(mFreeVersion){
+            // Add extra text to outgoing messages
+            // to advertise the App in the Free Version
+            msg = returnMessage + getString(R.string.response_sentby);
+        }
+
+        // Return a response if sms number isn't one of those special short numbers
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(smsNumber, null, msg, null, null);
+        responsesSent++;
+
+        // add to the database
+        db.addResponse(smsNumber);
+        smsAdapter.changeCursor(db.getAllData());
+
+        createNotification();
+        toastResponseSent();
+
+    }
+
+    /**
+     * Check to make sure the number we're receiving from
+     * is actually one of the contacts in the user's contact list
+     *
+     * @param smsNumber
+     * @return
+     */
+    private boolean isValidContactNumber(String smsNumber) {
+        boolean bSendResponse = true;
+
+        // validate incoming message number is in
+        // the contacts list.
+        boolean bFound = false;
+        Uri lookupUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+                Uri.encode(smsNumber));
+
+        ContentResolver localContentResolver = getApplicationContext().getContentResolver();
+        Cursor contactLookupCursor =
+                localContentResolver.query(
+                        lookupUri,
+                        new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup._ID},
+                        null,
+                        null,
+                        null);
+        try {
+            while (contactLookupCursor.moveToNext()) {
+                String contactName = contactLookupCursor.getString(contactLookupCursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup.DISPLAY_NAME));
+                String contactId = contactLookupCursor.getString(contactLookupCursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup._ID));
+                Log.d("SMSAutoResponder", "contactMatch name: " + contactName);
+                Log.d("SMSAutoResponder", "contactMatch id: " + contactId);
+                bFound = true;
+
+            }
+        } finally {
+            contactLookupCursor.close();
+        }
+
+        if (!bFound) {
+            Context context = getApplicationContext();
+            CharSequence text = getResources().getString(R.string.unknown_ignore_toast);
+            int duration = Toast.LENGTH_SHORT;
+            Toast toastIgnoreUnknown = Toast.makeText(context, text, duration);
+            toastIgnoreUnknown.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+            toastIgnoreUnknown.show();
+
+            // Flag that we're not sending a response
+            bSendResponse = false;
+        }
+
+        return bSendResponse;
+    }
+
+    /**
+     * Check the response database to see if the recent most response
+     * for this incoming number is outside the delay window.
+     *
+     * @param smsNumber
+     * @return
+     */
+    private boolean isLastResponseOldEnough(String smsNumber) {
+
+        boolean bSendResponse = true;
+
+        long recentMillis = db.getLatestResponseTime(smsNumber);
+        if (recentMillis == 0) {
+            Log.d("SMSAutoResponder", "No Recent response for number: " + smsNumber);
+        } else {
+            long nowMillis = System.currentTimeMillis();
+
+            Date now = new Date(nowMillis);
+            Date smsDate = new Date(recentMillis);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SS");
+            String strDate = sdf.format(smsDate);
+            Log.d("SMSAutoResponder", "Most Recent response for number: " + smsNumber + " is " + strDate);
+            Log.d("SMSAutoResponser", "Repeat Delay set to " + mrepeat_delay + " minutes");
+
+            long diff = now.getTime() - smsDate.getTime();
+            long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
+            Log.d("SMSAutoResponser", "Difference between now and recent response: " + minutes + " minutes");
+
+            if (minutes < mrepeat_delay) {
+                // Flag that we're not sending a response
+                bSendResponse = false;
+                Log.d("SMSAutoResponser", "Recent Response too recent. Not responding again so soon.");
+            }
+
+        }
+
+        return bSendResponse;
+    }
 
     /**
      * Receive Broadcasts to stop responses from Alarm
@@ -464,8 +547,12 @@ public class MainActivity extends ActionBarActivity
 		//---intent to filter for SMS messages received---
         smsIntentFilter = new IntentFilter();
         smsIntentFilter.addAction("SMS_RECEIVED_ACTION");
-		
-		ActivateButtons(receiverRegistered);
+
+        //---intent to filter for phone calls received---
+        phoneIntentFilter = new IntentFilter();
+        phoneIntentFilter.addAction("CALL_RECEIVED_ACTION");
+
+        ActivateButtons(receiverRegistered);
 
 		// Setup click listeners so we can have two actions from the enable/disable button
 		Button enableBtn = (Button) findViewById(R.id.btnStart);
@@ -957,6 +1044,7 @@ public class MainActivity extends ActionBarActivity
         //---unregister the receiver---  
         if (receiverRegistered){
             unregisterReceiver(smsIntentReceiver);
+            unregisterReceiver(phoneIntentReceiver);
             unregisterReceiver(activityRecognitionIntentReceiver);
             receiverRegistered = false;
         }
@@ -1040,6 +1128,7 @@ public class MainActivity extends ActionBarActivity
         //--- register the receivers for incoming SMS messages and
         // activity recognition from Location Services ---
         registerReceiver(smsIntentReceiver, smsIntentFilter);
+        registerReceiver(phoneIntentReceiver, phoneIntentFilter);
         registerReceiver(activityRecognitionIntentReceiver, activityRecognitionIntentFilter);
         receiverRegistered = true;
 
