@@ -63,6 +63,7 @@
     <string name="saved_repeat_delay">repeat_delay</string>
     <string name="saved_enable_delay">enable_delay</string>
     <string name="saved_enable_known_contacts">enable_known_contacts</string>
+    <string name="saved_enable_response_to_calls">enable_response_to_calls</string>
     <string name="saved_ignore_short">ignore_short</string>
     <string name="saved_auto_disable_response_delay">auto_disable_response_delay</string>
     <string name="saved_silent_when_driving">silent_when_driving</string>
@@ -131,6 +132,8 @@
     <string name="IgnoreShortCheck_Summary">Don\'t respond to short numbers, like 25423 (Alice Radio text number)</string>
     <string name="KnownContactsCheck_Title">Only Respond to known contacts</string>
     <string name="KnownContactsCheck_Summary">Only reply to numbers in your contacts list</string>
+    <string name="InComingCallsCheck_Title">Respond to incoming phone calls</string>
+    <string name="InComingCallsCheck_Summary">Send a reply to incoming phone calls, as well as SMS messages.</string>
     <string name="ClearDataCheck_Title">Clear Data on exit</string>
     <string name="ClearDataCheck_Summary">Clear response and activity history on App exit.</string>
     <string name="DisplayResponsesCheck_Title">Display Responses</string>

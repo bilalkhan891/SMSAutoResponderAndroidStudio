@@ -284,7 +284,6 @@ public class MainActivity extends ActionBarActivity
             // if Read SMS is enabled, then try to read back the incoming message
             if(menable_tts_read_sms && mTTS_available){
                 Log.d("SMSAutoResponder", "Text to Speech Received Message Text" );
-                mTts.speak("Message from: " + smsNumber, TextToSpeech.QUEUE_ADD, null);
                 mTts.speak(smsMsg, TextToSpeech.QUEUE_ADD, null);
             }
         }

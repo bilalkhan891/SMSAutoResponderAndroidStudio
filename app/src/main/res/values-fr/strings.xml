@@ -33,20 +33,20 @@
     <string name="activity_unknown">unknown</string>
     <string name="activity_tilting">tilting</string>
 
-    <string name="driving_title">Driving Response</string>
-    <string name="biking_title">Cycling Response</string>
-    <string name="running_title">Running Response</string>
-    <string name="hiking_title">Hiking Response</string>
-    <string name="donot_disturb_title">Do Not Disturb Response</string>
-    <string name="response_options_title">Response Options</string>
+    <string name="driving_title">Répondre au volant</string>
+    <string name="biking_title">Répondre en faisant du vélo</string>
+    <string name="running_title">Répondre en courant</string>
+    <string name="hiking_title">Répondre lors d\'une randonnée</string>
+    <string name="donot_disturb_title">Ne pas déranger</string>
+    <string name="response_options_title">Options pour les réponses</string>
     <string name="sms_options_title">SMS Options</string>
-    <string name="display_options_title">Display Options</string>
-    <string name="delay_options_title">Delay Options</string>
-    <string name="driving_summary">Response sent while driving</string>
-    <string name="biking_summary">Response sent while cycling</string>
-    <string name="running_summary">Response sent while running</string>
-    <string name="hiking_summary">Response sent while hiking</string>
-    <string name="donot_disturb_summary">Response sent while set to Do Not Disturb</string>
+    <string name="display_options_title">Options pour l\'affichage</string>
+    <string name="delay_options_title">Options pour les retards</string>
+    <string name="driving_summary">Réponse envoyée au volant</string>
+    <string name="biking_summary">Réponse envoyée en vélo</string>
+    <string name="running_summary">Réponse envoyée lors de l\'exécution</string>
+    <string name="hiking_summary">Réponse envoyée lors d\'une randonnée</string>
+    <string name="donot_disturb_summary">Réponse envoyée alors ensemble à Ne pas déranger</string>
 
 
     <string-array name="activity_array">
@@ -75,6 +75,15 @@
     <string name="saved_silent_when_driving">silent_when_driving</string>
     <string name="saved_clear_data_on_exit">clear_data_on_exit</string>
     <string name="preference_file_key">com.ridgway.smsautoresponder.PREFERENCE_FILE_KEY</string>
+    <string name="saved_enable_response_to_calls">enable_response_to_calls</string>
+    <string name="saved_show_responses_on_main_activity">show_responses_on_main_activity</string>
+    <string name="saved_response_options">response_options</string>
+    <string name="saved_sms_options">sms_options</string>
+    <string name="saved_display_options">display_options</string>
+    <string name="saved_delay_options">delay_options</string>
+    <string name="saved_tracking_options">tracking_options</string>
+    <string name="saved_track_using_location_services">track_using_location_services</string>
+    <string name="saved_enable_tts_read_sms">enable_tts_read_sms</string>
     <!-- END OF Do No Translate Block -->
 
 
@@ -82,10 +91,10 @@
     <string name="short_ignore_toast">Ignoring short number</string>
     <string name="unknown_ignore_toast">Ignorant texte de nombre inconnu</string>
     <string name="default_activity">Courait</string>
-    <string name="reset_defaults">Reset Defaults</string>
+    <string name="reset_defaults">Réinitialiser les valeurs par défaut</string>
     <string name="response_default">Response</string>
-    <string name="responses_sent_prompt">Responses Sent:</string>
-    <string name="response_toast">Response Sent</string>
+    <string name="responses_sent_prompt">Le nombre de réponses qui ont été envoyés:</string>
+    <string name="response_toast">La réponse a été envoyé</string>
     <string name="acknowledgeexit_title">Quitter</string>
     <string name="acknowledgeexit_msg">Etes-vous sûr de vouloir quitter?</string>
     <string name="acknowledge_delete_responses_title">Effacer des réponses</string>
@@ -99,7 +108,7 @@
     <string name="response_sentby"> -- Envoyé avec SMS Répondeur Automatique</string>
     <string name="dialog_auto_disable">Automatique Désactiver retard</string>
 
-    <string name="problem_dlg_msg">Quelque chose s'est mal passé. S'il vous plaît assurez que vous avez le Play Store installé et que vous êtes connecté à Internet. Contactez-développeur avec des détails si cela persiste.</string>
+    <string name="problem_dlg_msg">Quelque chose s\'est mal passé. S\'il vous plaît assurez que vous avez le Play Store installé et que vous êtes connecté à Internet. Contactez-développeur avec des détails si cela persiste.</string>
 
 
     <string name="listview_title">Réponses récentes:</string>
@@ -108,7 +117,7 @@
     <string name="response_hint">Saisissez une réponse</string>
     <string name="settings_title">Paramètres</string>
     <string name="configuration_title">Configuration</string>
-    <string name="duration_picker_title">Disable responses after...</string>
+    <string name="duration_picker_title">Désactiver les réponses après...</string>
 
     <string name="auto_disable_response_msg">La minuterie est terminé! Les réponses ont été désactivés</string>
 
@@ -127,29 +136,37 @@
     <string name="SettingsPanel_Title">Paramètres</string>
     <string name="SettingsPanel_Summary">SMS Paramètres</string>
     <string name="DelaysPanel_Title">Retards</string>
-    <string name="DelaysPanel_Summary">Message et désactiver des paramètres délai d'auto</string>
+    <string name="DelaysPanel_Summary">Message et désactiver des paramètres délai d\'auto</string>
     <string name="DisplayPanel_Title">Affichage</string>
-    <string name="DisplayPanel_Summary">Paramètres d'affichage</string>
+    <string name="DisplayPanel_Summary">Paramètres d\'affichage</string>
 
     <string name="SilentCheck_Title">Silence Téléphone</string>
     <string name="SilentCheck_Summary">Désactivation de la sonnerie de téléphone en mode conduite</string>
     <string name="IgnoreShortCheck_Title">Ignorer les numéros courts</string>
-    <string name="IgnoreShortCheck_Summary">Don\'t respond to short numbers, like 25423 (Alice Radio text number)</string>
+    <string name="IgnoreShortCheck_Summary">ne pas répondre à des numéros courts</string>
     <string name="KnownContactsCheck_Title">Seulement Répondre aux contacts connus</string>
     <string name="KnownContactsCheck_Summary">Que répondre à des numéros dans votre liste de contacts</string>
-    <string name="ClearDataCheck_Title">Clear Data on exit</string>
-    <string name="ClearDataCheck_Summary">Clear response and activity history on App exit.</string>
-    <string name="DisplayResponsesCheck_Title">Display Responses</string>
-    <string name="DisplayResponsesCheck_Summary">Afficher la liste des réponses récentes sur l'écran principal</string>
-    <string name="tracking_options_title">Location Tracking Options</string>
-    <string name="LocationServicesCheck_Title">Tracking Options</string>
+    <string name="ClearDataCheck_Title">Données claires sur la sortie</string>
+    <string name="ClearDataCheck_Summary">Effacer les données historiques lorsque vous quittez l\'application</string>
+    <string name="DisplayResponsesCheck_Title">Afficher l\'historique de réponse</string>
+    <string name="DisplayResponsesCheck_Summary">Afficher la liste des réponses récentes sur l\'écran principal</string>
+    <string name="tracking_options_title">Options pour la localisation</string>
+    <string name="LocationServicesCheck_Title">Options pour la localisation</string>
     <string name="LocationServicesCheck_Summary">Déterminez votre activité actuelle en utilisant Google Location Services</string>
-    <string name="TTSCheck_Title">Read Incoming SMS</string>
+    <string name="TTSCheck_Title">Lire les messages entrants</string>
     <string name="TTSCheck_Summary">Activer les messages entrants Lire SMS en utilisant le texte moteur de synthèse vocale</string>
 
 
     <string name="disable_responses_description">Les réponses seront automatiquement désactivées après la durée choisie.</string>
     <string name="disable_responses_never">Jamais</string>
-    <string name="disable_responses_apocalypse">À l'apocalypse!</string>
+    <string name="disable_responses_apocalypse">À l\'apocalypse!</string>
+
+    <string name="action_response_list">Réponses</string>
+    <string name="action_activity_list">Activités</string>
+    <string name="acknowledge_exit_title">Sortie</string>
+    <string name="acknowledge_exit_msg">Etes-vous sûr de vouloir quitter?</string>
+    <string name="dlg_ok">Dáccord</string>
+    <string name="InComingCallsCheck_Title">Répondre aux appels téléphoniques entrants</string>
+    <string name="InComingCallsCheck_Summary">Envoyer une réponse aux appels téléphoniques entrants, ainsi que des messages SMS.</string>
 
 </resources>

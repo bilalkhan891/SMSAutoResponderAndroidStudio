@@ -50,7 +50,7 @@ PERMISSIONS
 
 android.permission.SEND_SMS -- so we can send automated replies to incoming message, when enabled in the application.
 android.permission.RECEIVE_SMS -- so we know when and to whom we need to respond.
-
+android.permission.READ_PHONE_STATE -- so we know when there's an incoming call and can query the info to send a reply.
 
 com.google.android.providers.gsf.permission.READ_GSERVICES -- Needed for Ad Support
 android.permission.INTERNET -- Needed for Ad Support
